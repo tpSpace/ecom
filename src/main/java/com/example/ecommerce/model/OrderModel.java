@@ -4,10 +4,16 @@ import java.sql.Date;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.Data;
 
+@Entity
+@Table(name = "orders")
+@Data
 public class OrderModel {
     @Id
     @GeneratedValue
@@ -21,6 +27,9 @@ public class OrderModel {
     @OneToMany(mappedBy = "product")
     @Column(name = "product_id", nullable = false)
     private UUID productId;
+
+    @Column(name = "quantity", nullable = false)
+    private int quantity;
 
     @Column(name = "order_date", nullable = false)
     private Date orderDate;
