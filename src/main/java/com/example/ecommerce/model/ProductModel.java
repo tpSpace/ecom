@@ -2,16 +2,20 @@ package com.example.ecommerce.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -30,11 +34,9 @@ public class ProductModel {
     @Column(name = "product_name", nullable = false)
     private String productName;
 
-
-    @NotBlank(message = "categoryId cannot be empty")
-    @ManyToOne(targetEntity = CategoryModel.class, cascade = {CascadeType.ALL})
-    @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
-    private CategoryModel categoryId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private CategoryModel category;
 
     @NotBlank(message = "Product description cannot be empty")
     @Column(name = "product_description", nullable = false)
@@ -43,6 +45,12 @@ public class ProductModel {
     @NotBlank(message = "Product price cannot be empty")
     @Column(name = "product_price", nullable = false)
     private BigDecimal productPrice;
+
+    @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL)
+    private List<ProductImageModel> productImages;
+
+    @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL)
+    private List<RatingModel> ratings;
  
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -57,7 +65,7 @@ public class ProductModel {
         updatedAt = LocalDateTime.now();
     }
 
-    @PrePersist
+    @PreUpdate
     private void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

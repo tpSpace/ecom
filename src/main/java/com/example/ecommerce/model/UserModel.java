@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 
 @Entity
 @Table(name = "users")
@@ -56,7 +57,7 @@ public class UserModel {
     private String address;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false, columnDefinition = "user_role DEFAULT 'CUSTOMER'")
+    @Column(name = "role", nullable = false)
     private UserRole role= UserRole.CUSTOMER;
 
     @Column(name = "created_at")
@@ -72,7 +73,7 @@ public class UserModel {
         updatedAt = LocalDateTime.now();
     }
 
-    @PrePersist
+    @PreUpdate
     private void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }

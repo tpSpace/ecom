@@ -17,7 +17,7 @@ public class OrderModel {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserModel user;
+    private UserModel userId;
 
     @Column(name = "order_date", nullable = false)
     private LocalDate orderDate;
