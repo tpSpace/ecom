@@ -2,52 +2,78 @@ package com.example.ecommerce.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 
 @Entity
 @Table(name = "users")
 @Data
 public class UserModel {
+
     @Id
     @GeneratedValue
     @Column(columnDefinition = "uuid", name = "id", updatable = false, nullable = false, unique = true)
     private UUID id;
 
-    @Column(name = "username", nullable = false, unique = true)
-    private String username;
+    @NotBlank(message = "Password cannot be empty")
+    @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
     @Column(name = "password", nullable = false)
     private String password;
+    
+    @Email(message = "Email should be valid")
+    @NotEmpty(message = "Email should not be empty")
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @NotBlank(message = "Name cannot be empty")
+    @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
+    @NotBlank(message = "Name cannot be empty")
+    @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
+    @NotBlank(message = "Phone number cannot be empty")
     @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
+    @Column(name = "address", nullable = true)
+    private String address;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, columnDefinition = "user_role DEFAULT 'CUSTOMER'")
+    private UserRole role= UserRole.CUSTOMER;
+
     @Column(name = "created_at")
-    private Date createdAt; 
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
-    @Column(name = "last_login")
-    private Date lastLogin;
+    // Automatically set the createdAt and updatedAt fields before persisting the entity
+    @PrePersist
+    private void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
 
-    @Column(name = "is_active")
-    private Boolean isActive;
-
-    @Column(name = "is_admin")
-    private Boolean isAdmin;
+    @PrePersist
+    private void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }
