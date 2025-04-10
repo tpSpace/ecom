@@ -22,4 +22,4 @@ http://localhost:8080
 
 ## Schema
 
-![Schema](./asset/schema.png)
+![Schema](./asset/schema.jpeg)
