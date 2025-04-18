@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import jakarta.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,12 +22,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "User Management", description = "APIs for managing users")
 public class UserController {
 
-    private final UserService userService;
-    
-    // Constructor injection instead of @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    @Autowired
+    private UserService userService;
 
     @GetMapping
     @Operation(summary = "Get all users", description = "Retrieve a list of all users")
@@ -84,12 +81,4 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
     
-    @GetMapping("/by-email/{email}")
-    @Operation(summary = "Get user by email", description = "Find a user by their email address")
-    @ApiResponse(responseCode = "200", description = "User found")
-    @ApiResponse(responseCode = "404", description = "User not found")
-    public ResponseEntity<UserModel> getUserByEmail(@PathVariable String email) {
-        UserModel user = userService.getUserByEmail(email);
-        return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
-    }    
 }

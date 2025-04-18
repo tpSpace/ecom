@@ -46,12 +46,15 @@ public class ProductModel {
     @Column(name = "product_price", nullable = false)
     private BigDecimal productPrice;
 
-    @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<ProductImageModel> productImages;
 
-    @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<RatingModel> ratings;
- 
+
+    @Column(name = "is_featured")
+    private boolean isFeatured;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

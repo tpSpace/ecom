@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 
@@ -56,9 +57,10 @@ public class UserModel {
     @Column(name = "address", nullable = true)
     private String address;
 
+    @ManyToMany(targetEntity = RoleModel.class)
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private UserRole role= UserRole.CUSTOMER;
+    @Column(name = "role", nullable = true)
+    private RoleModel role;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

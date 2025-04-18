@@ -26,6 +26,9 @@ public class RatingModel {
     @Column(name = "rating_value", nullable = false)
     private double ratingValue;
 
+    @Column(name = "review", length = 255)
+    private String review;
+
     @Column(name = "created_on", nullable = false)
     private LocalDateTime createdOn;
 
