@@ -32,11 +32,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/by-id")
     @Operation(summary = "Get user by ID", description = "Retrieve a user by their ID")
     @ApiResponse(responseCode = "200", description = "User found")
     @ApiResponse(responseCode = "404", description = "User not found")
-    public ResponseEntity<UserModel> getUserById(@PathVariable UUID id) {
+    public ResponseEntity<UserModel> getUserById(@RequestParam UUID id) {
         return userService.getUserById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -51,13 +51,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
     
-    @PutMapping("/{id}")
+    @PutMapping
     @Operation(summary = "Update user", description = "Update an existing user")
     @ApiResponse(responseCode = "200", description = "User updated successfully")
     @ApiResponse(responseCode = "404", description = "User not found")
     @ApiResponse(responseCode = "400", description = "Invalid user data")
     public ResponseEntity<UserModel> updateUser(
-            @PathVariable UUID id,
+            @RequestParam UUID id,
             @Valid @RequestBody UserModel user) {
         
         return userService.getUserById(id)
@@ -69,16 +69,15 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     @Operation(summary = "Delete user", description = "Delete a user by their ID")
     @ApiResponse(responseCode = "204", description = "User deleted successfully")
     @ApiResponse(responseCode = "404", description = "User not found")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteUser(@RequestParam UUID id) {
         if (userService.getUserById(id).isPresent()) {
             userService.deleteUser(id);
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
     }
-    
 }

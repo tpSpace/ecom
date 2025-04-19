@@ -1,5 +1,7 @@
 package com.example.ecommerce.model;
 
+import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,7 +16,7 @@ public class RoleModel {
     @Id
     @GeneratedValue
     @Column(columnDefinition = "uuid", name = "id", updatable = false, nullable = false, unique = true)
-    private String id;
+    private UUID id;
 
     @Column(name = "role", nullable = false, unique = true)
     private String role;

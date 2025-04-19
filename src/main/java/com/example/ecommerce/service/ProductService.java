@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.example.ecommerce.model.ProductModel;
@@ -16,10 +18,6 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    public List<ProductModel> getProductsByCategory(UUID category) {
-        return productRepository.findByCategory_Id(category);
-    }
-
     public ProductModel createProduct(ProductModel product) {
         return productRepository.save(product);
     }
@@ -29,20 +27,19 @@ public class ProductService {
     public void deleteProduct(UUID id) {
         productRepository.deleteById(id);
     }
-        
-    public List<ProductModel> getAllProducts() {
-        return productRepository.findAll();
-    }
-
     public Optional<ProductModel> getProductById(UUID id) {
         return productRepository.findById(id);
     }
 
-    public List<ProductModel> getProductsByCategoryId(UUID categoryId) {
-        return productRepository.findByCategory_Id(categoryId);
+    public List<ProductModel> getProductsByCategory(UUID categoryId, int page, int size) {
+        PageRequest pg = PageRequest.of(page, size);
+        Page<ProductModel> productPage = productRepository.findByCategory_Id(categoryId, pg);
+        return productPage.getContent();
     }
 
-    public List<ProductModel> searchProducts(String query) {
-        return productRepository.findByNameContainingIgnoreCase(query);
+    public List<ProductModel> getProductByCategoryIdPageable(UUID categoryId, int page, int size) {
+        PageRequest pg = PageRequest.of(page, size);
+        Page<ProductModel> productPage = productRepository.findByCategory_Id(categoryId, pg);
+        return productPage.getContent();
     }
 }

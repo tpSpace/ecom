@@ -47,7 +47,9 @@ public class SwaggerConfig {
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
-                    "/"
+                    "/",
+                    "/api/users",
+                    "/api/auth/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             );

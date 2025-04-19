@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
@@ -16,7 +17,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 
@@ -57,9 +60,8 @@ public class UserModel {
     @Column(name = "address", nullable = true)
     private String address;
 
-    @ManyToMany(targetEntity = RoleModel.class)
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "role_id", nullable = false)
     private RoleModel role;
 
     @Column(name = "created_at")

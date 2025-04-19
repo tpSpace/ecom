@@ -4,9 +4,16 @@ import java.time.LocalDate;
 import java.util.stream.Collectors;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import com.example.ecommerce.enums.OrderStatus;
+import com.example.ecommerce.exception.ResourceNotFoundException;
 import com.example.ecommerce.model.CartModel;
 import com.example.ecommerce.model.OrderItemModel;
 import com.example.ecommerce.model.OrderModel;
@@ -15,6 +22,7 @@ import com.example.ecommerce.repository.OrderRepository;
 
 import jakarta.transaction.Transactional;
 
+@Service
 public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
@@ -53,6 +61,37 @@ public class OrderService {
         cartItemRepository.deleteByCart_Id(cart.getId());
 
         return savedOrder;
+    }
+
+    public Page<OrderModel> getAllOrders(Pageable pageable) {
+        return orderRepository.findAll(pageable);
+    }
+    
+    public Optional<OrderModel> getOrderById(UUID id) {
+        return orderRepository.findById(id);
+    }
+    
+    public Page<OrderModel> getOrdersByUser(UUID userId, Pageable pageable) {
+        return orderRepository.findAllByUser_Id(userId, pageable);
+    }
+    
+    public Page<OrderModel> getOrdersByStatus(String status, Pageable pageable) {
+        return orderRepository.findAllByOrderStatus(status, pageable);
+    }
+    
+    public OrderModel createOrder(OrderModel order) {
+        return orderRepository.save(order);
+    }
+    
+    public OrderModel updateOrderStatus(UUID id, String status) {
+        OrderModel order = orderRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
+        order.setOrderStatus(status);
+        return orderRepository.save(order);
+    }
+    
+    public void deleteOrder(UUID id) {
+        orderRepository.deleteById(id);
     }
     
 }

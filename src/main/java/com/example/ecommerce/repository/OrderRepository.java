@@ -2,7 +2,7 @@ package com.example.ecommerce.repository;
 
 import java.util.UUID;
 
-import org.springdoc.core.converters.models.Pageable;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -17,10 +17,7 @@ public interface  OrderRepository extends JpaRepository<OrderModel, UUID> {
         - CANCELLED
         - RETURNED
      */
-
-
-    Page<OrderModel> findAllByStatus(String status, Pageable pageable);
-    Page<OrderModel> findAllByUserId(UUID userId, Pageable pageable);
-
-    Page<OrderModel> findAllByUserIdAndStatus(UUID userId, String status, Pageable pageable);
+    Page<OrderModel> findAllByOrderStatus(String status, Pageable pageable);
+    Page<OrderModel> findAllByUser_Id(UUID userId, Pageable pageable);
+    Page<OrderModel> findAllByUser_IdAndOrderStatus(UUID userId, String status, Pageable pageable);
 }

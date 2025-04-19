@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -25,8 +26,8 @@ public class ProductImageModel {
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
-    @ManyToOne(optional = false, targetEntity = ProductModel.class)
-    @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
-    private ProductModel productId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private ProductModel product;
 
 }
