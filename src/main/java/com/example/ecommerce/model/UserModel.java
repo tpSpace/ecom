@@ -2,8 +2,7 @@ package com.example.ecommerce.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Table;
@@ -18,7 +17,7 @@ import java.util.UUID;
 
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
+
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -34,10 +33,9 @@ public class UserModel {
     private UUID id;
 
     @NotBlank(message = "Password cannot be empty")
-    @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
     @Column(name = "password", nullable = false)
     private String password;
-    
+
     @Email(message = "Email should be valid")
     @NotEmpty(message = "Email should not be empty")
     @Column(name = "email", nullable = false, unique = true)
@@ -70,7 +68,8 @@ public class UserModel {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Automatically set the createdAt and updatedAt fields before persisting the entity
+    // Automatically set the createdAt and updatedAt fields before persisting the
+    // entity
     @PrePersist
     private void onCreate() {
         createdAt = LocalDateTime.now();

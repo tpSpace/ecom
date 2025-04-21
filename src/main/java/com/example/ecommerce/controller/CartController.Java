@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/carts")
+@RequestMapping("/api/v1/carts")
 @Tag(name = "Cart Controller", description = "APIs for managing shopping carts")
 public class CartController {
 

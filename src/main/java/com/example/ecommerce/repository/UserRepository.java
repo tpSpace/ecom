@@ -14,12 +14,15 @@ import com.example.ecommerce.model.UserModel;
 @Repository
 public interface UserRepository extends JpaRepository<UserModel, UUID> {
     UserModel findByEmail(String email);
+
     Page<UserModel> findByFirstNameContainingOrLastNameContaining(String firstName, String lastName, Pageable pageable);
+
     // OR
     Page<UserModel> findAllByFirstNameContaining(String name, Pageable pageable);
+
     // OR
     @Query("SELECT u FROM UserModel u WHERE u.firstName LIKE %:name% OR u.lastName LIKE %:name%")
     Page<UserModel> searchByName(@Param("name") String name, Pageable pageable);
-    
+
     UserModel findByEmailAndPassword(String email, String password);
 }

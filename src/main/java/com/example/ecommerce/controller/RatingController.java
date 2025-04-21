@@ -20,7 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/ratings")
+@RequestMapping("/api/v1/ratings")
 @Tag(name = "Rating Controller", description = "Rating Management APIs")
 public class RatingController {
     
