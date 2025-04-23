@@ -51,7 +51,7 @@ public class ProductController {
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(productService.getProductsByCategory(categoryId, page, size));
     }
-    
+
     @PutMapping
     @Operation(summary = "Update product", description = "Updates an existing product")
     @ApiResponse(responseCode = "200", description = "Product updated successfully")
@@ -62,11 +62,11 @@ public class ProductController {
         return productService.getProductById(id)
                 .map(existingProduct -> {
                     product.setId(id);
-                    return new ResponseEntity<>(productService.createProduct(product), HttpStatus.OK);
+                    return new ResponseEntity<>(productService.updateProduct(product), HttpStatus.OK);
                 })
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-    
+
     @DeleteMapping
     @Operation(summary = "Delete product", description = "Deletes a product by its ID")
     @ApiResponse(responseCode = "204", description = "Product deleted successfully")
