@@ -22,11 +22,17 @@ public class UserDetailsImpl implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(UUID id, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    private String firstName;
+    private String lastName;
+
+    public UserDetailsImpl(UUID id, String email, String password, Collection<? extends GrantedAuthority> authorities,
+            String firstName, String lastName) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.authorities = authorities;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     public static UserDetailsImpl build(UserModel user) {
@@ -36,7 +42,18 @@ public class UserDetailsImpl implements UserDetails {
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
-                Collections.singletonList(authority));
+                Collections.singletonList(authority),
+                user.getFirstName(),
+                user.getLastName());
+    }
+
+    // Add getters
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
     }
 
     @Override

@@ -62,9 +62,15 @@ public class AuthController {
                 String role = userDetails.getAuthorities().stream()
                                 .findFirst()
                                 .map(item -> item.getAuthority())
-                                .orElse("ROLE_USER");
+                                .orElse(Role.CUSTOMER.name());
 
-                return ResponseEntity.ok(new AuthResponse(jwt, role, userDetails.getId(), userDetails.getUsername()));
+                return ResponseEntity.ok(new AuthResponse(
+                                jwt,
+                                role,
+                                userDetails.getId(),
+                                userDetails.getUsername(),
+                                userDetails.getFirstName(),
+                                userDetails.getLastName()));
         }
 
         @PostMapping("/register")
@@ -105,8 +111,9 @@ public class AuthController {
                 String role = userDetails.getAuthorities().stream()
                                 .findFirst()
                                 .map(item -> item.getAuthority())
-                                .orElse("ROLE_USER");
+                                .orElse(Role.CUSTOMER.name());
 
-                return ResponseEntity.ok(new AuthResponse(jwt, role, userDetails.getId(), userDetails.getUsername()));
+                return ResponseEntity.ok(new AuthResponse(jwt, role, userDetails.getId(), userDetails.getUsername(),
+                                userDetails.getFirstName(), userDetails.getLastName()));
         }
 }
