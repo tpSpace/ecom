@@ -3,6 +3,8 @@ package com.example.ecommerce.controller;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -63,14 +65,23 @@ public class AuthController {
                                 .findFirst()
                                 .map(item -> item.getAuthority())
                                 .orElse(Role.CUSTOMER.name());
-
-                return ResponseEntity.ok(new AuthResponse(
-                                jwt,
-                                role,
-                                userDetails.getId(),
-                                userDetails.getUsername(),
-                                userDetails.getFirstName(),
-                                userDetails.getLastName()));
+                // Create an HTTP-only cookie for JWT
+                ResponseCookie jwtCookie = ResponseCookie.from("jwt", jwt)
+                                .httpOnly(true)
+                                .secure(false) // Set to true if using HTTPS
+                                .path("/")
+                                .maxAge(24 * 60 * 60) // 1 day
+                                .build();
+                System.out.println("JWT Cookie: " + jwt);
+                return ResponseEntity.ok()
+                                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                                .body(new AuthResponse(
+                                                jwt,
+                                                role,
+                                                userDetails.getId(),
+                                                userDetails.getUsername(),
+                                                userDetails.getFirstName(),
+                                                userDetails.getLastName()));
         }
 
         @PostMapping("/register")

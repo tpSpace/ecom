@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class ProductController {
     @Operation(summary = "Create new product", description = "Creates a new product in the database")
     @ApiResponse(responseCode = "201", description = "Product created successfully")
     @ApiResponse(responseCode = "400", description = "Invalid product data")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductModel> createProduct(@RequestBody ProductModel product) {
         ProductModel createdProduct = productService.createProduct(product);
         return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
@@ -56,6 +58,7 @@ public class ProductController {
     @Operation(summary = "Update product", description = "Updates an existing product")
     @ApiResponse(responseCode = "200", description = "Product updated successfully")
     @ApiResponse(responseCode = "404", description = "Product not found")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductModel> updateProduct(
             @RequestParam UUID id,
             @RequestBody ProductModel product) {
@@ -71,6 +74,7 @@ public class ProductController {
     @Operation(summary = "Delete product", description = "Deletes a product by its ID")
     @ApiResponse(responseCode = "204", description = "Product deleted successfully")
     @ApiResponse(responseCode = "404", description = "Product not found")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteProduct(@RequestParam UUID id) {
         if (productService.getProductById(id).isPresent()) {
             productService.deleteProduct(id);

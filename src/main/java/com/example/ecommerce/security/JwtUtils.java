@@ -6,13 +6,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
 
@@ -28,11 +29,29 @@ public class JwtUtils {
 
     public String generateJwtToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-        return generateTokenFromUsername(userPrincipal.getUsername());
+
+        // Extract roles from the authentication
+        String roles = userPrincipal.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        // Extract additional user information
+        String email = userPrincipal.getUsername();
+        String firstName = userPrincipal.getFirstName();
+        String lastName = userPrincipal.getLastName();
+        String userId = userPrincipal.getId().toString();
+
+        return generateTokenWithClaims(email, roles, userId, firstName, lastName);
     }
 
-    public String generateTokenFromUsername(String username) {
+    public String generateTokenWithClaims(String username, String role, String userId,
+            String firstName, String lastName) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+        claims.put("userId", userId);
+        claims.put("firstName", firstName);
+        claims.put("lastName", lastName);
+
         return Jwts.builder()
                 .claims(claims)
                 .subject(username)
@@ -47,6 +66,14 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    public String getRoleFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.get("role", String.class));
+    }
+
+    public String getUserIdFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.get("userId", String.class));
+    }
+
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
@@ -57,12 +84,12 @@ public class JwtUtils {
     }
 
     private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser().verifyWith(getSigningKey()).build().parseEncryptedClaims(token).getPayload();
+        return Jwts.parser().verifyWith(getSigningKey()).build().parseEncryptedClaims(token.trim()).getPayload();
     }
 
     public boolean validateJwtToken(String authToken) {
         try {
-            Jwts.parser().verifyWith(getSigningKey()).build().parseEncryptedClaims(authToken).getPayload();
+            Jwts.parser().verifyWith(getSigningKey()).build().parseEncryptedClaims(authToken.trim()).getPayload();
             return true;
         } catch (JwtException e) {
             logger.error("Invalid JWT signature: {}", e.getMessage());
