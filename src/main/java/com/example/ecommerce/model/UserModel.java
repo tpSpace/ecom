@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -28,7 +29,7 @@ import jakarta.persistence.PreUpdate;
 public class UserModel {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(columnDefinition = "uuid", name = "id", updatable = false, nullable = false, unique = true)
     private UUID id;
 
@@ -58,7 +59,7 @@ public class UserModel {
     @Column(name = "address", nullable = true)
     private String address;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "role_id", nullable = false)
     private RoleModel role;
 

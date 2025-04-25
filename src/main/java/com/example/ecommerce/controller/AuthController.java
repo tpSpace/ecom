@@ -64,10 +64,10 @@ public class AuthController {
                 String role = userDetails.getAuthorities().stream()
                                 .findFirst()
                                 .map(item -> item.getAuthority())
-                                .orElse(Role.CUSTOMER.name());
+                                .orElse(Role.ROLE_CUSTOMER.name());
                 // Create an HTTP-only cookie for JWT
                 ResponseCookie jwtCookie = ResponseCookie.from("jwt", jwt)
-                                .httpOnly(true)
+                                .httpOnly(false)
                                 .secure(false) // Set to true if using HTTPS
                                 .path("/")
                                 .maxAge(24 * 60 * 60) // 1 day
@@ -102,7 +102,7 @@ public class AuthController {
                 user.setPhoneNumber(registerRequest.getPhoneNumber());
                 user.setAddress(registerRequest.getAddress());
 
-                String userZ = Role.CUSTOMER.name();
+                String userZ = Role.ROLE_CUSTOMER.name();
                 // Assign default ROLE_USER
                 RoleModel userRole = roleRepository.findByRole(userZ)
                                 .orElseThrow(() -> new RuntimeException("Error: Default role not found"));
@@ -122,7 +122,7 @@ public class AuthController {
                 String role = userDetails.getAuthorities().stream()
                                 .findFirst()
                                 .map(item -> item.getAuthority())
-                                .orElse(Role.CUSTOMER.name());
+                                .orElse(Role.ROLE_CUSTOMER.name());
 
                 return ResponseEntity.ok(new AuthResponse(jwt, role, userDetails.getId(), userDetails.getUsername(),
                                 userDetails.getFirstName(), userDetails.getLastName()));

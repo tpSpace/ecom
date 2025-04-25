@@ -49,8 +49,6 @@ public class JwtUtils {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
         claims.put("userId", userId);
-        claims.put("firstName", firstName);
-        claims.put("lastName", lastName);
 
         return Jwts.builder()
                 .claims(claims)
@@ -84,12 +82,15 @@ public class JwtUtils {
     }
 
     private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser().verifyWith(getSigningKey()).build().parseEncryptedClaims(token.trim()).getPayload();
+        return Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token.trim()).getPayload();
     }
 
     public boolean validateJwtToken(String authToken) {
         try {
-            Jwts.parser().verifyWith(getSigningKey()).build().parseEncryptedClaims(authToken.trim()).getPayload();
+            Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(authToken.trim()).getPayload();
+            logger.info(authToken,
+                    Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(authToken.trim())
+                            .getPayload());
             return true;
         } catch (JwtException e) {
             logger.error("Invalid JWT signature: {}", e.getMessage());

@@ -13,6 +13,9 @@ import com.example.ecommerce.model.ProductModel;
 public interface ProductRepository extends JpaRepository<ProductModel, UUID> {
 
     Double findPriceById(UUID id);
+
     Page<ProductModel> findByCategory_Id(UUID categoryId, Pageable pageable);
-    Page<ProductModel> findByCategory_IdAndProductNameContainingIgnoreCase(UUID categoryId, String name, Pageable pageable);
+
+    Page<ProductModel> findByCategory_IdAndNameContainingIgnoreCase(UUID categoryId, String name,
+            Pageable pageable);
 }

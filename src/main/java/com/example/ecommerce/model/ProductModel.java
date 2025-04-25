@@ -1,6 +1,5 @@
 package com.example.ecommerce.model;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,7 @@ public class ProductModel {
 
     @NotBlank(message = "Product name cannot be empty")
     @Column(name = "product_name", nullable = false)
-    private String productName;
+    private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
@@ -41,13 +40,17 @@ public class ProductModel {
 
     @NotBlank(message = "Product description cannot be empty")
     @Column(name = "product_description", nullable = false)
-    private String productDescription;
+    private String description;
 
     @NotBlank(message = "Product price cannot be empty")
     @Column(name = "product_price", nullable = false)
-    private BigDecimal productPrice;
+    private Double price;
 
-    // mappedby mean 
+    @NotBlank(message = "Product quantity cannot be empty")
+    @Column(name = "product_quantity", nullable = false)
+    private Integer quantity;
+
+    // mappedby mean
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImageModel> productImages = new ArrayList<>();
 
@@ -63,7 +66,8 @@ public class ProductModel {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Automatically set the createdAt and updatedAt fields before persisting the entity
+    // Automatically set the createdAt and updatedAt fields before persisting the
+    // entity
     @PrePersist
     private void onCreate() {
         createdAt = LocalDateTime.now();
@@ -74,5 +78,4 @@ public class ProductModel {
     private void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
 }

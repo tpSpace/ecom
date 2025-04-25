@@ -1,6 +1,6 @@
 package com.example.ecommerce.enums;
 
 public enum Role {
-    CUSTOMER,
-    ADMIN
+    ROLE_CUSTOMER,
+    ROLE_ADMIN
 }

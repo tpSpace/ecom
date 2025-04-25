@@ -49,7 +49,7 @@ public class OrderService {
                     oi.setOrder(order);
                     oi.setProduct(ci.getProduct());
                     oi.setQuantity(ci.getQuantity());
-                    oi.setPrice(ci.getProduct().getProductPrice());
+                    oi.setPrice(ci.getProduct().getPrice());
                     return oi;
                 })
                 .collect(Collectors.toList());

@@ -1,5 +1,6 @@
 package com.example.ecommerce.controller;
 
+import com.example.ecommerce.dto.ProductRequest;
 import com.example.ecommerce.model.ProductModel;
 import com.example.ecommerce.service.ProductService;
 
@@ -8,10 +9,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,14 +28,41 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Create new product", description = "Creates a new product in the database")
     @ApiResponse(responseCode = "201", description = "Product created successfully")
     @ApiResponse(responseCode = "400", description = "Invalid product data")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductModel> createProduct(@RequestBody ProductModel product) {
-        ProductModel createdProduct = productService.createProduct(product);
+    public ResponseEntity<ProductModel> createProduct(
+            @RequestParam("name") String name,
+            @RequestParam("description") String description,
+            @RequestParam("price") Double price,
+            @RequestParam("category") String category,
+            @RequestParam("quantity") Integer quantity,
+            @RequestParam(value = "images", required = false) List<MultipartFile> images) {
+
+        // Create product request from params
+        ProductRequest productRequest = ProductRequest.builder()
+                .name(name)
+                .description(description)
+                .price(price)
+                .category(category)
+                .quantity(quantity)
+                .build();
+
+        // Create product and handle images use mapper if needed
+        ProductModel createdProduct = productService.createProductWithImages(productRequest, images);
         return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
+    }
+
+    // get all products
+    @GetMapping
+    @Operation(summary = "Get all products", description = "Retrieve all products with pagination")
+    @ApiResponse(responseCode = "200", description = "List of products")
+    public ResponseEntity<Page<ProductModel>> getAllProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(productService.getAllProducts(page, size));
     }
 
     @GetMapping("/by-id")

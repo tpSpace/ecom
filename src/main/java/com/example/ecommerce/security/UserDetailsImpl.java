@@ -3,11 +3,9 @@ package com.example.ecommerce.security;
 import com.example.ecommerce.model.UserModel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.UUID;
 
 public class UserDetailsImpl implements UserDetails {
@@ -35,14 +33,13 @@ public class UserDetailsImpl implements UserDetails {
         this.lastName = lastName;
     }
 
-    public static UserDetailsImpl build(UserModel user) {
-        GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().getRole().toString());
-
+    public static UserDetailsImpl buildWithAuthorities(UserModel user,
+            Collection<? extends GrantedAuthority> authorities) {
         return new UserDetailsImpl(
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
-                Collections.singletonList(authority),
+                authorities,
                 user.getFirstName(),
                 user.getLastName());
     }

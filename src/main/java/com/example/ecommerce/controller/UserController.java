@@ -50,7 +50,7 @@ public class UserController {
         UserModel createdUser = userService.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
-    
+
     @PutMapping
     @Operation(summary = "Update user", description = "Update an existing user")
     @ApiResponse(responseCode = "200", description = "User updated successfully")
@@ -59,7 +59,7 @@ public class UserController {
     public ResponseEntity<UserModel> updateUser(
             @RequestParam UUID id,
             @Valid @RequestBody UserModel user) {
-        
+
         return userService.getUserById(id)
                 .map(existingUser -> {
                     user.setId(id);
