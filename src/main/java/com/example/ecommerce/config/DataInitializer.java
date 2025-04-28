@@ -71,6 +71,39 @@ public class DataInitializer implements CommandLineRunner {
             userRepository.save(adminUser);
             System.out.println("Created admin user: " + adminUser.getEmail());
         }
+        // Create 20 customer accounts
+        String[] firstNames = { "John", "Sarah", "Michael", "Emily", "David", "Jessica", "James", "Jennifer",
+                "Robert", "Lisa", "William", "Mary", "Richard", "Patricia", "Joseph",
+                "Linda", "Thomas", "Elizabeth", "Charles", "Susan" };
+
+        String[] lastNames = { "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson",
+                "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris",
+                "Martin", "Thompson", "Garcia", "Martinez", "Robinson" };
+
+        String[] cities = { "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia",
+                "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville",
+                "Fort Worth", "Columbus", "San Francisco", "Charlotte", "Indianapolis",
+                "Seattle", "Denver", "Washington" };
+        for (int i = 0; i < 20; i++) {
+            String email = "customer" + (i + 1) + "@example.com";
+            if (userRepository.findByEmail(email) == null) {
+                UserModel customer = new UserModel();
+                customer.setEmail(email);
+                customer.setPassword(passwordEncoder.encode("password123"));
+                customer.setRole(roleRepository.findByRole(Role.ROLE_CUSTOMER.name()).orElse(null));
+                customer.setFirstName(firstNames[i]);
+                customer.setLastName(lastNames[i]);
+                customer.setPhoneNumber("555" + String.format("%07d", i + 1000000));
+                customer.setAddress((100 + i) + " Main Street, " + cities[i] + ", " + generateRandomZip());
+                userRepository.save(customer);
+                System.out.println("Created customer user: " + customer.getEmail());
+            }
+        }
+    }
+
+    private String generateRandomZip() {
+        // Generate a random 5-digit ZIP code
+        return String.format("%05d", (int) (Math.random() * 90000) + 10000);
     }
 
     private void initFurnitureCategories() {

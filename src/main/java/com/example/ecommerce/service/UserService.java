@@ -1,16 +1,17 @@
 package com.example.ecommerce.service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.example.ecommerce.model.UserModel;
 import com.example.ecommerce.repository.UserRepository;
 
-@Service 
+@Service
 public class UserService {
 
     @Autowired
@@ -32,8 +33,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<UserModel> getAllUsers() {
-        return userRepository.findAll();
+    public Page<UserModel> getAllUsers(int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size);
+        Page<UserModel> userPage = userRepository.findAll(pageable);
+        return userPage;
     }
 
     public Optional<UserModel> getUserById(UUID id) {

@@ -1,13 +1,14 @@
 package com.example.ecommerce.controller;
 
-import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.ecommerce.model.UserModel;
@@ -28,8 +29,11 @@ public class UserController {
     @GetMapping
     @Operation(summary = "Get all users", description = "Retrieve a list of all users")
     @ApiResponse(responseCode = "200", description = "List of users returned successfully")
-    public ResponseEntity<List<UserModel>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    @ApiResponse(responseCode = "403", description = "Access denied")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Page<UserModel>> getAllUsers(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(userService.getAllUsers(page, size));
     }
 
     @GetMapping("/by-id")
