@@ -25,7 +25,7 @@ public class CartController {
     @Autowired
     private CartService cartService;
     
-    @GetMapping("/by-id")
+    @GetMapping("/{id}")
     @Operation(summary = "Get cart by ID", description = "Retrieves a cart by its ID")
     @ApiResponse(responseCode = "200", description = "Cart found")
     @ApiResponse(responseCode = "404", description = "Cart not found")
@@ -35,7 +35,7 @@ public class CartController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
-    @GetMapping("/by-user")
+    @GetMapping()
     @Operation(summary = "Get cart by user ID", description = "Retrieves a user's shopping cart")
     @ApiResponse(responseCode = "200", description = "Cart found")
     @ApiResponse(responseCode = "404", description = "Cart not found for this user")
@@ -45,36 +45,37 @@ public class CartController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
-    @PostMapping("/items")
+    @PostMapping("/{cart_id}/items")
     @Operation(summary = "Add item to cart", description = "Adds a product to the user's cart")
     @ApiResponse(responseCode = "200", description = "Item added to cart")
     @ApiResponse(responseCode = "404", description = "Cart or product not found")
-    public ResponseEntity<CartModel> addItemToCart(@Valid @RequestBody CartItemModel cartItem) {
-        CartModel updatedCart = cartService.addItemToCart(cartItem);
+    public ResponseEntity<CartModel> addItemToCart(@PathVariable UUID cart_id, @Valid @RequestBody CartItemModel cartItem) {
+        CartModel updatedCart = cartService.addItemToCart(cart_id, cartItem);
         return ResponseEntity.ok(updatedCart);
     }
     
-    @PutMapping("/items")
+    @PutMapping("/{cart_id}/items/{item_id}")
     @Operation(summary = "Update cart item", description = "Updates quantity of an item in the cart")
     @ApiResponse(responseCode = "200", description = "Cart item updated")
     @ApiResponse(responseCode = "404", description = "Cart or cart item not found")
     public ResponseEntity<CartModel> updateCartItem(
-            @RequestParam UUID cartItemId, 
+            @PathVariable UUID cart_id, 
+            @PathVariable UUID item_id, 
             @RequestParam Integer quantity) {
-        CartModel updatedCart = cartService.updateCartItemQuantity(cartItemId, quantity);
+        CartModel updatedCart = cartService.updateCartItemQuantity(item_id, quantity);
         return ResponseEntity.ok(updatedCart);
     }
     
-    @DeleteMapping("/items")
+    @DeleteMapping("/{cart_id}/items/{item_id}")
     @Operation(summary = "Remove item from cart", description = "Removes an item from the cart")
     @ApiResponse(responseCode = "200", description = "Item removed from cart")
     @ApiResponse(responseCode = "404", description = "Cart or cart item not found")
-    public ResponseEntity<CartModel> removeItemFromCart(@RequestParam UUID cartItemId) {
-        CartModel updatedCart = cartService.removeItemFromCart(cartItemId);
+    public ResponseEntity<CartModel> removeItemFromCart(@PathVariable UUID cart_id, @PathVariable UUID item_id) {
+        CartModel updatedCart = cartService.removeItemFromCart(item_id);
         return ResponseEntity.ok(updatedCart);
     }
     
-    @DeleteMapping("/clear")
+    @DeleteMapping()
     @Operation(summary = "Clear cart", description = "Removes all items from a cart")
     @ApiResponse(responseCode = "204", description = "Cart cleared successfully")
     @ApiResponse(responseCode = "404", description = "Cart not found")
@@ -83,7 +84,7 @@ public class CartController {
         return ResponseEntity.noContent().build();
     }
     
-    @PostMapping("/create")
+    @PostMapping()
     @Operation(summary = "Create cart", description = "Creates a new cart for a user")
     @ApiResponse(responseCode = "201", description = "Cart created successfully")
     public ResponseEntity<CartModel> createCart(@RequestParam UUID userId) {

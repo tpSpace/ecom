@@ -8,7 +8,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
@@ -20,15 +19,15 @@ import lombok.Data;
 public class ProductImageModel {
 
     @Id
-    @GeneratedValue
-    @Column(columnDefinition = "uuid", name = "id", updatable = false, nullable = false, unique = true)
+    @GeneratedValue(generator = "UUID")
+    // @Type(type = "org.hibernate.type.PostgresUUIDType")
+    @Column(name = "id", updatable = false, nullable = false, unique = true, columnDefinition = "uuid")
     private UUID id;
 
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
-    @Lob
-    @Column(name = "image_data", nullable = true)
+    @Column(name = "image_data", columnDefinition = "bytea", nullable = false)
     private byte[] imageData;
 
     @ManyToOne(fetch = FetchType.LAZY)

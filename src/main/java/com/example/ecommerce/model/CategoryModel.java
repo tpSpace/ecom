@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name = "categories")
 @Data
@@ -25,11 +28,13 @@ public class CategoryModel {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
+    @JsonBackReference
     private CategoryModel parent;
 
     @OneToMany(mappedBy = "parent")
     private List<CategoryModel> subcategories = new ArrayList<>();
 
     @OneToMany(mappedBy = "category")
+    @JsonManagedReference
     private List<ProductModel> products = new ArrayList<>();
 }

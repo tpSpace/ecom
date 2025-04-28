@@ -17,7 +17,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -32,33 +34,35 @@ public class ProductController {
     @Operation(summary = "Create new product", description = "Creates a new product in the database")
     @ApiResponse(responseCode = "201", description = "Product created successfully")
     @ApiResponse(responseCode = "400", description = "Invalid product data")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductModel> createProduct(
-            @RequestParam("name") String name,
-            @RequestParam("description") String description,
-            @RequestParam("price") Double price,
-            @RequestParam("category") String category,
-            @RequestParam("quantity") Integer quantity,
-            @RequestParam(value = "images", required = false) List<MultipartFile> images) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> createProduct(
+            @ModelAttribute ProductRequest productRequest,
+            @RequestParam(value = "images", required = false) MultipartFile[] images) {
 
-        // Create product request from params
-        ProductRequest productRequest = ProductRequest.builder()
-                .name(name)
-                .description(description)
-                .price(price)
-                .category(category)
-                .quantity(quantity)
-                .build();
-
-        // Create product and handle images use mapper if needed
-        ProductModel createdProduct = productService.createProductWithImages(productRequest, images);
-        return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
+        try {
+            // Create product and handle images
+            ProductModel createdProduct = productService.createProductWithImages(
+                    productRequest, images);
+            return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            // Rest of error handling remains the same
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Invalid input data");
+            errorResponse.put("message", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "An unexpected error occurred");
+            errorResponse.put("message", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // get all products
     @GetMapping
     @Operation(summary = "Get all products", description = "Retrieve all products with pagination")
     @ApiResponse(responseCode = "200", description = "List of products")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Page<ProductModel>> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {

@@ -9,9 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.ecommerce.dto.ProductRequest;
+import com.example.ecommerce.mapper.ProductMapper;
+import com.example.ecommerce.model.CategoryModel;
 import com.example.ecommerce.model.ProductImageModel;
 import com.example.ecommerce.model.ProductModel;
 import com.example.ecommerce.repository.CategoryRepository;
@@ -31,6 +34,9 @@ public class ProductService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private ProductMapper mapper;
 
     public ProductModel createProduct(ProductModel product) {
         return productRepository.save(product);
@@ -66,50 +72,40 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductModel createProductWithImages(ProductRequest productRequest, List<MultipartFile> images) {
-        // Step 1: Map and save product first
-        ProductModel product = mapProductFromRequest(productRequest);
+    public ProductModel createProductWithImages(ProductRequest req, MultipartFile[] images) {
+        // 1) Map + validate core fields
+        ProductModel product = mapper.toEntity(req);
+
+        // 2) Lookup & set category
+        UUID catId;
+        try {
+            catId = UUID.fromString(req.getCategory());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid category ID format: " + req.getCategory());
+        }
+        CategoryModel category = categoryRepository.findById(catId)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found with ID: " + catId));
+        product.setCategory(category);
+
+        // 3) Persist product
         product = productRepository.save(product);
 
-        // Step 2: Process and save images if provided
-        if (images != null && !images.isEmpty()) {
-            for (MultipartFile imageFile : images) {
+        // 4) Handle images (unchanged)
+        if (images != null) {
+            for (MultipartFile image : images) {
+                if (image.isEmpty())
+                    continue;
                 try {
-                    ProductImageModel productImage = new ProductImageModel();
-                    productImage.setProduct(product); // Set the saved product
-                    productImage.setImageData(imageFile.getBytes());
-
-                    // Generate URL based on product ID and image name
-                    String fileName = UUID.randomUUID().toString();
-                    productImage.setImageUrl("/images/products/" + product.getId() + "/" + fileName);
-
-                    productImageRepository.save(productImage);
+                    ProductImageModel img = new ProductImageModel();
+                    img.setProduct(product);
+                    img.setImageData(image.getBytes());
+                    img.setImageUrl(image.getOriginalFilename());
+                    productImageRepository.save(img);
                 } catch (IOException e) {
-                    throw new RuntimeException("Failed to process image", e);
+                    throw new RuntimeException("Failed to save image: " + e.getMessage(), e);
                 }
             }
         }
-
-        return product;
-    }
-
-    // Helper method for mapping
-    private ProductModel mapProductFromRequest(ProductRequest request) {
-        ProductModel product = new ProductModel();
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
-        product.setQuantity(request.getQuantity());
-
-        // Map category
-        try {
-            UUID categoryId = UUID.fromString(request.getCategory());
-            categoryRepository.findById(categoryId)
-                    .ifPresent(product::setCategory);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid category ID format");
-        }
-
         return product;
     }
 }

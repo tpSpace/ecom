@@ -34,8 +34,7 @@ public class ProductRequest {
     @Min(value = 0, message = "Quantity cannot be negative")
     private Integer quantity;
 
-    // optional fields
-
-    private String imageUrl; // URL of the main image
-    private Byte[] images;
+    // optional
+    private String imageUrl;
+    private byte[] imageData;
 }
