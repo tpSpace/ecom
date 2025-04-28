@@ -24,8 +24,8 @@ public class ProductImageModel {
     @Column(name = "id", updatable = false, nullable = false, unique = true, columnDefinition = "uuid")
     private UUID id;
 
-    @Column(name = "image_url", nullable = false)
-    private String imageUrl;
+    // @Column(name = "image_url", nullable = false)
+    // private String imageUrl;
 
     @Column(name = "image_data", columnDefinition = "bytea", nullable = false)
     private byte[] imageData;

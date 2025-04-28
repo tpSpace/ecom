@@ -1,6 +1,8 @@
 package com.example.ecommerce.controller;
 
 import com.example.ecommerce.dto.ProductRequest;
+import com.example.ecommerce.dto.ProductResponse;
+import com.example.ecommerce.mapper.ProductMapper;
 import com.example.ecommerce.model.ProductModel;
 import com.example.ecommerce.service.ProductService;
 
@@ -29,6 +31,9 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private ProductMapper mapper;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Create new product", description = "Creates a new product in the database")
@@ -63,10 +68,13 @@ public class ProductController {
     @Operation(summary = "Get all products", description = "Retrieve all products with pagination")
     @ApiResponse(responseCode = "200", description = "List of products")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Page<ProductModel>> getAllProducts(
+    public ResponseEntity<Page<ProductResponse>> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(productService.getAllProducts(page, size));
+
+        Page<ProductModel> models = productService.getAllProducts(page, size);
+        Page<ProductResponse> dtos = models.map(mapper::toResponseDto);
+        return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/by-id")

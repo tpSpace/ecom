@@ -1,9 +1,12 @@
 package com.example.ecommerce.mapper;
 
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.example.ecommerce.dto.ProductRequest;
+import com.example.ecommerce.dto.ProductResponse;
 import com.example.ecommerce.model.ProductModel;
 
 @Component
@@ -43,7 +46,7 @@ public class ProductMapper {
         return product;
     }
 
-    public ProductRequest toDto(ProductModel entity) {
+    public ProductRequest toRequestDto(ProductModel entity) {
         if (entity == null)
             return null;
         ProductRequest dto = new ProductRequest();
@@ -54,6 +57,21 @@ public class ProductMapper {
         if (entity.getCategory() != null) {
             dto.setCategory(entity.getCategory().getId().toString());
         }
+        return dto;
+    }
+
+    public ProductResponse toResponseDto(ProductModel product) {
+        ProductResponse dto = new ProductResponse();
+        dto.setId(product.getId());
+        dto.setName(product.getName());
+        dto.setDescription(product.getDescription());
+        dto.setPrice(product.getPrice());
+        dto.setCategory(product.getCategory().getId().toString());
+        dto.setQuantity(product.getQuantity());
+        dto.setImages(
+                product.getProductImages().stream()
+                        .map(img -> img.getImageData())
+                        .collect(Collectors.toList()));
         return dto;
     }
 }

@@ -99,7 +99,6 @@ public class ProductService {
                     ProductImageModel img = new ProductImageModel();
                     img.setProduct(product);
                     img.setImageData(image.getBytes());
-                    img.setImageUrl(image.getOriginalFilename());
                     productImageRepository.save(img);
                 } catch (IOException e) {
                     throw new RuntimeException("Failed to save image: " + e.getMessage(), e);
