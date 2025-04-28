@@ -49,6 +49,7 @@ public class ProductModel {
 
     @NotNull(message = "Product price is required")
     @Column(name = "product_price", nullable = false)
+    @Min(value = 0, message = "Price cannot be negative")
     private Double price;
 
     @NotNull(message = "Product quantity cannot be null")

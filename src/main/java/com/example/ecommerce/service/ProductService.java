@@ -107,4 +107,57 @@ public class ProductService {
         }
         return product;
     }
+
+    @Transactional
+    public ProductModel updateProductWithImages(
+            UUID id,
+            ProductRequest req,
+            MultipartFile[] images) {
+        // 1) fetch existing product
+        ProductModel product = productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found: " + id));
+
+        // 2) update core fields
+        product.setName(req.getName().trim());
+        product.setDescription(req.getDescription().trim());
+        product.setPrice(req.getPrice());
+        product.setQuantity(req.getQuantity());
+
+        // 3) lookup & set category
+        UUID catId;
+        try {
+            catId = UUID.fromString(req.getCategory());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid category ID format: " + req.getCategory());
+        }
+        CategoryModel category = categoryRepository.findById(catId)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found with ID: " + catId));
+        product.setCategory(category);
+
+        // 4) persist product changes
+        product = productRepository.save(product);
+
+        // 5) replace images if new ones provided
+        if (images != null) {
+            // remove all old images
+            productImageRepository.deleteAll(product.getProductImages());
+            product.getProductImages().clear();
+
+            // save new uploads
+            for (MultipartFile image : images) {
+                if (image.isEmpty())
+                    continue;
+                try {
+                    ProductImageModel img = new ProductImageModel();
+                    img.setProduct(product);
+                    img.setImageData(image.getBytes());
+                    productImageRepository.save(img);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to save image: " + e.getMessage(), e);
+                }
+            }
+        }
+
+        return product;
+    }
 }

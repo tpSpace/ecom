@@ -97,20 +97,25 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductsByCategory(categoryId, page, size));
     }
 
-    @PutMapping
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Update product", description = "Updates an existing product")
     @ApiResponse(responseCode = "200", description = "Product updated successfully")
     @ApiResponse(responseCode = "404", description = "Product not found")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductModel> updateProduct(
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ProductResponse> updateProduct(
             @RequestParam UUID id,
-            @RequestBody ProductModel product) {
+            @ModelAttribute ProductRequest productRequest,
+            @RequestParam(value = "images", required = false) MultipartFile[] images) {
+
+        // attempt update
         return productService.getProductById(id)
-                .map(existingProduct -> {
-                    product.setId(id);
-                    return new ResponseEntity<>(productService.updateProduct(product), HttpStatus.OK);
+                .map(existing -> {
+                    ProductModel updated = productService
+                            .updateProductWithImages(id, productRequest, images);
+                    ProductResponse dto = mapper.toResponseDto(updated);
+                    return ResponseEntity.ok(dto);
                 })
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @DeleteMapping
