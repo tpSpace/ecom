@@ -21,10 +21,13 @@ public class RatingModel {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    private ProductModel productId;  
+    private ProductModel product;  
 
     @Column(name = "rating_value", nullable = false)
-    private double ratingValue;
+    private double ratingValue; // 1-5
+
+    @Column(name = "review", length = 255)
+    private String review;
 
     @Column(name = "created_on", nullable = false)
     private LocalDateTime createdOn;

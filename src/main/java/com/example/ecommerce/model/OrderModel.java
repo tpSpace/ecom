@@ -2,6 +2,8 @@ package com.example.ecommerce.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.Data;
 
@@ -17,7 +19,10 @@ public class OrderModel {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserModel userId;
+    private UserModel user;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItemModel> orderItems = new ArrayList<>();
 
     @Column(name = "order_date", nullable = false)
     private LocalDate orderDate;

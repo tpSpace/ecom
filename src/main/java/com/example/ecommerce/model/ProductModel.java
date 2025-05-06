@@ -1,9 +1,11 @@
 package com.example.ecommerce.model;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -17,7 +19,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Entity
@@ -32,33 +36,45 @@ public class ProductModel {
 
     @NotBlank(message = "Product name cannot be empty")
     @Column(name = "product_name", nullable = false)
-    private String productName;
+    private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
+    @JsonBackReference
     private CategoryModel category;
 
     @NotBlank(message = "Product description cannot be empty")
     @Column(name = "product_description", nullable = false)
-    private String productDescription;
+    private String description;
 
-    @NotBlank(message = "Product price cannot be empty")
+    @NotNull(message = "Product price is required")
     @Column(name = "product_price", nullable = false)
-    private BigDecimal productPrice;
+    @Min(value = 0, message = "Price cannot be negative")
+    private Double price;
 
-    @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL)
-    private List<ProductImageModel> productImages;
+    @NotNull(message = "Product quantity cannot be null")
+    @Min(value = 0, message = "Quantity cannot be negative")
+    @Column(name = "product_quantity", nullable = false)
+    private Integer quantity;
 
-    @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL)
+    // mappedby mean
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<ProductImageModel> productImages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<RatingModel> ratings;
- 
+
+    @Column(name = "is_featured")
+    private boolean isFeatured;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Automatically set the createdAt and updatedAt fields before persisting the entity
+    // Automatically set the createdAt and updatedAt fields before persisting the
+    // entity
     @PrePersist
     private void onCreate() {
         createdAt = LocalDateTime.now();
@@ -69,5 +85,4 @@ public class ProductModel {
     private void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
 }

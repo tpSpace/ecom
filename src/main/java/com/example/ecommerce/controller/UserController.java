@@ -1,12 +1,14 @@
 package com.example.ecommerce.controller;
 
-import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.ecommerce.model.UserModel;
@@ -17,29 +19,28 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
 @Tag(name = "User Management", description = "APIs for managing users")
 public class UserController {
 
-    private final UserService userService;
-    
-    // Constructor injection instead of @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    @Autowired
+    private UserService userService;
 
     @GetMapping
     @Operation(summary = "Get all users", description = "Retrieve a list of all users")
     @ApiResponse(responseCode = "200", description = "List of users returned successfully")
-    public ResponseEntity<List<UserModel>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    @ApiResponse(responseCode = "403", description = "Access denied")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Page<UserModel>> getAllUsers(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(userService.getAllUsers(page, size));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/by-id")
     @Operation(summary = "Get user by ID", description = "Retrieve a user by their ID")
     @ApiResponse(responseCode = "200", description = "User found")
     @ApiResponse(responseCode = "404", description = "User not found")
-    public ResponseEntity<UserModel> getUserById(@PathVariable UUID id) {
+    public ResponseEntity<UserModel> getUserById(@RequestParam UUID id) {
         return userService.getUserById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -53,16 +54,16 @@ public class UserController {
         UserModel createdUser = userService.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
-    
-    @PutMapping("/{id}")
+
+    @PutMapping
     @Operation(summary = "Update user", description = "Update an existing user")
     @ApiResponse(responseCode = "200", description = "User updated successfully")
     @ApiResponse(responseCode = "404", description = "User not found")
     @ApiResponse(responseCode = "400", description = "Invalid user data")
     public ResponseEntity<UserModel> updateUser(
-            @PathVariable UUID id,
+            @RequestParam UUID id,
             @Valid @RequestBody UserModel user) {
-        
+
         return userService.getUserById(id)
                 .map(existingUser -> {
                     user.setId(id);
@@ -72,24 +73,15 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     @Operation(summary = "Delete user", description = "Delete a user by their ID")
     @ApiResponse(responseCode = "204", description = "User deleted successfully")
     @ApiResponse(responseCode = "404", description = "User not found")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteUser(@RequestParam UUID id) {
         if (userService.getUserById(id).isPresent()) {
             userService.deleteUser(id);
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
     }
-    
-    @GetMapping("/by-email/{email}")
-    @Operation(summary = "Get user by email", description = "Find a user by their email address")
-    @ApiResponse(responseCode = "200", description = "User found")
-    @ApiResponse(responseCode = "404", description = "User not found")
-    public ResponseEntity<UserModel> getUserByEmail(@PathVariable String email) {
-        UserModel user = userService.getUserByEmail(email);
-        return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
-    }    
 }

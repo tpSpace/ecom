@@ -3,7 +3,6 @@ package com.example.ecommerce.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -27,6 +26,6 @@ public class OrderItemModel {
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    @Column(name = "price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    @Column(name = "price", nullable = false)
+    private Double price;
 }

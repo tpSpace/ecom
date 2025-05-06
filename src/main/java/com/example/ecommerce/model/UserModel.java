@@ -2,9 +2,10 @@ package com.example.ecommerce.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -16,6 +17,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 
@@ -25,15 +29,14 @@ import jakarta.persistence.PreUpdate;
 public class UserModel {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(columnDefinition = "uuid", name = "id", updatable = false, nullable = false, unique = true)
     private UUID id;
 
     @NotBlank(message = "Password cannot be empty")
-    @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
     @Column(name = "password", nullable = false)
     private String password;
-    
+
     @Email(message = "Email should be valid")
     @NotEmpty(message = "Email should not be empty")
     @Column(name = "email", nullable = false, unique = true)
@@ -56,9 +59,9 @@ public class UserModel {
     @Column(name = "address", nullable = true)
     private String address;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private UserRole role= UserRole.CUSTOMER;
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "role_id", nullable = false)
+    private RoleModel role;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -66,7 +69,8 @@ public class UserModel {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Automatically set the createdAt and updatedAt fields before persisting the entity
+    // Automatically set the createdAt and updatedAt fields before persisting the
+    // entity
     @PrePersist
     private void onCreate() {
         createdAt = LocalDateTime.now();
