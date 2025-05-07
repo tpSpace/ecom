@@ -30,35 +30,100 @@ http://localhost:8080
 - ADMIN
 
 ```bash
-/home/khoi/code/nashtech/ecommerce/
-├── src/main/java/com/example/ecommerce/
-│ ├── config/
-│ │ ├── JwtProperties.java
-│ │ ├── SecurityConfig.java (replaces security config in SwaggerConfig)
-│ │ └── DataInitializer.java
-│ │
-│ ├── controller/
-│ │ ├── AuthController.java
-│ │ └── AdminController.java (optional for testing role-based access)
-│ │
-│ ├── dto/
-│ │ ├── AuthRequest.java
-│ │ ├── AuthResponse.java
-│ │ └── RegisterRequest.java
-│ │
-│ ├── repository/
-│ │ └── RoleRepository.java
-│ │
-│ ├── security/ (new directory)
-│ │ ├── JwtUtils.java
-│ │ ├── JwtAuthenticationFilter.java
-│ │ ├── AuthEntryPointJwt.java
-│ │ ├── UserDetailsImpl.java
-│ │ └── UserDetailsServiceImpl.java
-│ │
-│ └── exception/
-│ └── ResourceNotFoundException.java (you already have this)
-│
-└── src/main/resources/
-└── application.properties (add JWT properties)
+├─ .mvn
+│  └─ wrapper
+│     ├─ maven-wrapper.properties
+│     └─ maven-wrapper.properties:Zone.Identifier
+├─ asset
+│  └─ schema.jpeg
+├─ src
+│  ├─ main
+│  │  ├─ java
+│  │  │  └─ com
+│  │  │     └─ example
+│  │  │        └─ ecommerce
+│  │  │           ├─ config
+│  │  │           │  ├─ CorsConfig.java
+│  │  │           │  ├─ DataInitializer.java
+│  │  │           │  ├─ JwtProperties.java
+│  │  │           │  ├─ SecurityConfig.java
+│  │  │           │  └─ SwaggerConfig.java
+│  │  │           ├─ controller
+│  │  │           │  ├─ AuthController.java
+│  │  │           │  ├─ CartController.Java
+│  │  │           │  ├─ CategoryController.java
+│  │  │           │  ├─ OrderController.java
+│  │  │           │  ├─ ProductController.java
+│  │  │           │  ├─ RatingController.java
+│  │  │           │  └─ UserController.java
+│  │  │           ├─ dto
+│  │  │           │  ├─ AuthRequest.java
+│  │  │           │  ├─ AuthResponse.java
+│  │  │           │  ├─ CategoryRequest.java
+│  │  │           │  ├─ CategoryResponse.java
+│  │  │           │  ├─ ProductRequest.java
+│  │  │           │  ├─ ProductResponse.java
+│  │  │           │  └─ RegisterRequest.java
+│  │  │           ├─ enums
+│  │  │           │  ├─ OrderStatus.java
+│  │  │           │  └─ Role.java
+│  │  │           ├─ exception
+│  │  │           │  └─ ResourceNotFoundException.java
+│  │  │           ├─ mapper
+│  │  │           │  ├─ CategoryMapper.java
+│  │  │           │  ├─ ProductMapper.java
+│  │  │           │  └─ ProductMapperMS.java
+│  │  │           ├─ model
+│  │  │           │  ├─ CartItemModel.java
+│  │  │           │  ├─ CartModel.java
+│  │  │           │  ├─ CategoryModel.java
+│  │  │           │  ├─ OrderItemModel.java
+│  │  │           │  ├─ OrderModel.java
+│  │  │           │  ├─ ProductImageModel.java
+│  │  │           │  ├─ ProductModel.java
+│  │  │           │  ├─ RatingModel.java
+│  │  │           │  ├─ RoleModel.java
+│  │  │           │  └─ UserModel.java
+│  │  │           ├─ repository
+│  │  │           │  ├─ CartItemRepository.java
+│  │  │           │  ├─ CartRepository.java
+│  │  │           │  ├─ CategoryRepository.java
+│  │  │           │  ├─ OrderRepository.java
+│  │  │           │  ├─ ProductImageRepository.java
+│  │  │           │  ├─ ProductRepository.java
+│  │  │           │  ├─ RatingRepository.java
+│  │  │           │  ├─ RoleRepository.java
+│  │  │           │  └─ UserRepository.java
+│  │  │           ├─ security
+│  │  │           │  ├─ AuthEntryPointJwt.java
+│  │  │           │  ├─ JwtAuthenticationFilter.java
+│  │  │           │  ├─ JwtUtils.java
+│  │  │           │  ├─ UserDetailsImpl.java
+│  │  │           │  └─ UserDetailsServiceImpl.java
+│  │  │           ├─ service
+│  │  │           │  ├─ CartService.java
+│  │  │           │  ├─ CategoryService.java
+│  │  │           │  ├─ OrderService.java
+│  │  │           │  ├─ ProductService.java
+│  │  │           │  ├─ RatingService.java
+│  │  │           │  └─ UserService.java
+│  │  │           └─ EcommerceApplication.java
+│  │  └─ resources
+│  │     ├─ application.yaml
+│  │     └─ schema.sql
+│  └─ test
+│     └─ java
+│        └─ com
+│           └─ example
+│              └─ ecommerce
+│                 ├─ EcommerceApplicationTests.java
+│                 └─ EcommerceApplicationTests.java:Zone.Identifier
+├─ .env
+├─ .gitattributes
+├─ .gitignore
+├─ README.md
+├─ dockerfile
+├─ mvnw
+├─ mvnw.cmd
+└─ pom.xml
 ```

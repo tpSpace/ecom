@@ -27,6 +27,8 @@ public class ProductRequest {
     @DecimalMin(value = "0.01", message = "Price must be greater than 0")
     private Double price;
 
+    private String sku;
+
     @NotNull(message = "Category is required")
     private String category; // Use UUID in service layer
 

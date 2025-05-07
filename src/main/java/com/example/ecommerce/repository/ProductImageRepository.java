@@ -12,4 +12,5 @@ public interface ProductImageRepository extends JpaRepository<ProductImageModel,
     // For example, find product image by product ID
     List<ProductImageModel> findByProductId(UUID productId);
 
+    void deleteByProductId(UUID productId);
 }

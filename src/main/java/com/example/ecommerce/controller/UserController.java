@@ -10,8 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.example.ecommerce.model.RoleModel;
 import com.example.ecommerce.model.UserModel;
+import com.example.ecommerce.repository.RoleRepository;
 import com.example.ecommerce.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +28,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @GetMapping
     @Operation(summary = "Get all users", description = "Retrieve a list of all users")
@@ -84,4 +90,50 @@ public class UserController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    // change role
+    @PatchMapping("/role")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Operation(summary = "Change user role", description = "Change the role of a user")
+    @ApiResponse(responseCode = "200", description = "User role changed successfully")
+    @ApiResponse(responseCode = "404", description = "User not found")
+    @ApiResponse(responseCode = "400", description = "Invalid role")
+    public ResponseEntity<UserModel> changeUserRole(
+            @RequestParam("id") UUID id,
+            @RequestParam("role") String roleName) {
+
+        // load user
+        UserModel user = userService.getUserById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "User not found: " + id));
+
+        // load role
+        RoleModel role = roleRepository.findByRole(roleName)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, "Invalid role: " + roleName));
+
+        // assign & save
+        user.setRole(role);
+        UserModel updated = userService.createUser(user);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PatchMapping()
+    @Operation(summary = "Update user details", description = "Update user details")
+    @ApiResponse(responseCode = "200", description = "User details updated successfully")
+    @ApiResponse(responseCode = "404", description = "User not found")
+    @ApiResponse(responseCode = "400", description = "Invalid user data")
+    public ResponseEntity<UserModel> updateUserDetails(
+            @RequestParam UUID id,
+            @Valid @RequestBody UserModel user) {
+
+        return userService.getUserById(id)
+                .map(existingUser -> {
+                    user.setId(id);
+                    UserModel updatedUser = userService.createUser(user);
+                    return ResponseEntity.ok(updatedUser);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
+/// redirect to ecommerce

@@ -38,7 +38,7 @@ public class ProductModel {
     @Column(name = "product_name", nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable = false)
     @JsonBackReference
     private CategoryModel category;
@@ -56,6 +56,9 @@ public class ProductModel {
     @Min(value = 0, message = "Quantity cannot be negative")
     @Column(name = "product_quantity", nullable = false)
     private Integer quantity;
+
+    @Column(unique = true)
+    private String sku;
 
     // mappedby mean
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -84,5 +87,14 @@ public class ProductModel {
     @PreUpdate
     private void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void setImages(byte[] imageData) {
+        if (imageData != null) {
+            ProductImageModel image = new ProductImageModel();
+            image.setImageData(imageData);
+            image.setProduct(this);
+            this.productImages.add(image);
+        }
     }
 }

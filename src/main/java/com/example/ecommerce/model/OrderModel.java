@@ -24,8 +24,8 @@ public class OrderModel {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItemModel> orderItems = new ArrayList<>();
 
-    @Column(name = "order_date", nullable = false)
-    private LocalDate orderDate;
+    @Column(name = "created_at", nullable = false)
+    private LocalDate createdAt;
 
     @Column(name = "order_status", nullable = false)
     private String orderStatus;
@@ -35,4 +35,6 @@ public class OrderModel {
 
     @Column(name = "billing_address", nullable = false, length = 500)
     private String billingAddress;
+
+    private double totalAmount;
 }

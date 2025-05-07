@@ -11,4 +11,5 @@ public interface CategoryRepository extends JpaRepository<CategoryModel, UUID> {
     // For example, find category by name
     CategoryModel findByName(String name);
 
+    boolean existsByName(String name);
 }

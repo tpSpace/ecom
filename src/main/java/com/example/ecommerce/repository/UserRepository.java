@@ -25,4 +25,5 @@ public interface UserRepository extends JpaRepository<UserModel, UUID> {
     Page<UserModel> searchByName(@Param("name") String name, Pageable pageable);
 
     UserModel findByEmailAndPassword(String email, String password);
+
 }

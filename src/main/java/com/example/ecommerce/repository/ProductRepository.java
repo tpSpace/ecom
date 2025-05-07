@@ -1,5 +1,7 @@
 package com.example.ecommerce.repository;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
@@ -18,4 +20,10 @@ public interface ProductRepository extends JpaRepository<ProductModel, UUID> {
 
     Page<ProductModel> findByCategory_IdAndNameContainingIgnoreCase(UUID categoryId, String name,
             Pageable pageable);
+
+    boolean existsBySku(String sku);
+
+    Optional<ProductModel> findBySku(String sku);
+
+    List<ProductModel> findByNameAndCategory_Id(String name, UUID id);
 }

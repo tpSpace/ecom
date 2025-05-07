@@ -7,14 +7,22 @@ import org.springframework.stereotype.Component;
 
 import com.example.ecommerce.enums.Role;
 import com.example.ecommerce.model.CategoryModel;
+import com.example.ecommerce.model.OrderItemModel;
+import com.example.ecommerce.model.OrderModel;
+import com.example.ecommerce.model.ProductModel;
 import com.example.ecommerce.model.RoleModel;
 import com.example.ecommerce.model.UserModel;
 import com.example.ecommerce.repository.CategoryRepository;
+import com.example.ecommerce.repository.OrderRepository;
+import com.example.ecommerce.repository.ProductRepository;
 import com.example.ecommerce.repository.RoleRepository;
 import com.example.ecommerce.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -31,6 +39,13 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private OrderRepository orderItemRepository;
+    @Autowired
+    private ProductRepository productRepository;
+
     @Override
     public void run(String... args) throws Exception {
         // Initialize roles
@@ -41,6 +56,12 @@ public class DataInitializer implements CommandLineRunner {
 
         // Initialize furniture categories
         initFurnitureCategories();
+
+        // Initialize sample products
+        initSampleProducts();
+
+        // Initialize random orders
+        initRandomOrders();
     }
 
     private void initRoles() {
@@ -72,19 +93,12 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println("Created admin user: " + adminUser.getEmail());
         }
         // Create 20 customer accounts
-        String[] firstNames = { "John", "Sarah", "Michael", "Emily", "David", "Jessica", "James", "Jennifer",
-                "Robert", "Lisa", "William", "Mary", "Richard", "Patricia", "Joseph",
-                "Linda", "Thomas", "Elizabeth", "Charles", "Susan" };
+        String[] firstNames = { "John", "Sarah", "Michael", };
 
-        String[] lastNames = { "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson",
-                "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris",
-                "Martin", "Thompson", "Garcia", "Martinez", "Robinson" };
+        String[] lastNames = { "Smith", "Johnson", "Williams" };
 
-        String[] cities = { "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia",
-                "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville",
-                "Fort Worth", "Columbus", "San Francisco", "Charlotte", "Indianapolis",
-                "Seattle", "Denver", "Washington" };
-        for (int i = 0; i < 20; i++) {
+        String[] cities = { "New York", "Los Angeles", "Chicago" };
+        for (int i = 0; i < 3; i++) {
             String email = "customer" + (i + 1) + "@example.com";
             if (userRepository.findByEmail(email) == null) {
                 UserModel customer = new UserModel();
@@ -144,5 +158,151 @@ public class DataInitializer implements CommandLineRunner {
             default:
                 return role.name() + " role";
         }
+    }
+
+    private void initSampleProducts() {
+        // Get all categories
+        List<CategoryModel> categories = categoryRepository.findAll();
+        if (categories.isEmpty()) {
+            System.out.println("No categories found - skipping product generation");
+            return;
+        }
+
+        // Sample product data structure: name, description, price, category index
+        List<Object[]> sampleProducts = Arrays.asList(
+                // Living Room products
+                new Object[] { "Modern Sofa", "Three-seater sofa with premium fabric upholstery", 999.99,
+                        "Living Room" },
+                new Object[] { "Coffee Table", "Wood and glass coffee table with storage", 249.99, "Living Room" },
+                new Object[] { "TV Stand", "Wide entertainment center with cable management", 349.99, "Living Room" },
+
+                // Bedroom products
+                new Object[] { "Queen Bed Frame", "Solid wood queen-size bed frame", 599.99, "Bedroom" },
+                new Object[] { "Wardrobe", "Large wardrobe with sliding doors", 799.99, "Bedroom" },
+                new Object[] { "Nightstand", "Bedside table with drawer", 129.99, "Bedroom" },
+
+                // Dining Room products
+                new Object[] { "Dining Table Set", "Table with 6 chairs", 899.99, "Dining Room" },
+                new Object[] { "China Cabinet", "Glass-front cabinet for dishes", 699.99, "Dining Room" },
+
+                // Kitchen products
+                new Object[] { "Bar Stools (Set of 2)", "Counter-height stools", 179.99, "Kitchen" },
+                new Object[] { "Kitchen Island", "Rolling kitchen island with butcher block top", 449.99, "Kitchen" },
+
+                // Office products
+                new Object[] { "Office Desk", "L-shaped corner desk", 329.99, "Office" },
+                new Object[] { "Ergonomic Chair", "Adjustable office chair with lumbar support", 249.99, "Office" },
+                new Object[] { "Bookshelf", "5-shelf bookcase", 159.99, "Office" });
+
+        // Create and save products
+        Random random = new Random();
+        for (Object[] productData : sampleProducts) {
+            String name = (String) productData[0];
+            String description = (String) productData[1];
+            Double price = (Double) productData[2];
+            String categoryName = (String) productData[3];
+
+            // Find the category
+            CategoryModel category = categoryRepository.findByName(categoryName);
+            if (category == null)
+                continue;
+
+            // Check if product already exists
+            if (!productRepository.findByNameAndCategory_Id(name, category.getId()).isEmpty()) {
+                continue;
+            }
+
+            // Create new product
+            ProductModel product = new ProductModel();
+            product.setName(name);
+            product.setDescription(description);
+            product.setPrice(price);
+            product.setQuantity(random.nextInt(50) + 10); // Random stock between 10-60
+            product.setCategory(category);
+            product.setFeatured(random.nextBoolean()); // Random featured status
+
+            // Save product
+            productRepository.save(product);
+            System.out.println("Created product: " + name + " in category " + categoryName);
+        }
+    }
+
+    private void initRandomOrders() {
+        // Only proceed if we have products and users
+        List<UserModel> customers = userRepository.findAll().stream()
+                .filter(u -> u.getRole().getRole().equals(Role.ROLE_CUSTOMER.name()))
+                .collect(Collectors.toList());
+
+        List<ProductModel> products = productRepository.findAll();
+
+        if (products.isEmpty()) {
+            System.out.println("No products found - skipping order generation");
+            return;
+        }
+
+        Random random = new Random();
+        String[] statuses = { "PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED" };
+
+        // Create between 1-4 orders for each customer
+        for (UserModel customer : customers) {
+            int numOrders = 1;
+
+            for (int i = 0; i < numOrders; i++) {
+                OrderModel order = new OrderModel();
+                order.setUser(customer);
+
+                // Set random dates within the last 30 days
+                LocalDateTime orderDate = LocalDateTime.now().minusDays(random.nextInt(30));
+                order.setCreatedAt(orderDate.toLocalDate());
+
+                // Set random status
+                String status = statuses[random.nextInt(statuses.length)];
+                order.setOrderStatus(status);
+
+                // Generate shipping address from customer data
+                order.setShippingAddress(customer.getAddress());
+                // Set billing address (required field)
+                order.setBillingAddress(customer.getAddress());
+
+                // Save the order first to get an ID
+                orderRepository.save(order);
+
+                // Create 1-5 order items with random products
+                int itemCount = random.nextInt(5) + 1;
+                double totalAmount = 0.0;
+
+                for (int j = 0; j < itemCount; j++) {
+                    // Get random product
+                    ProductModel product = products.get(random.nextInt(products.size()));
+
+                    OrderItemModel orderItem = new OrderItemModel();
+                    orderItem.setOrder(order);
+                    orderItem.setProduct(product);
+
+                    // Random quantity between 1-3
+                    int quantity = random.nextInt(3) + 1;
+                    orderItem.setQuantity(quantity);
+
+                    // Set price from product
+                    orderItem.setPrice(product.getPrice());
+
+                    // Calculate item total
+                    double itemTotal = quantity * product.getPrice();
+                    totalAmount += itemTotal;
+
+                    // Save order item using the correct repository
+                    orderItemRepository.save(orderItem);
+                }
+
+                // Update order with final amount
+                order.setTotalAmount(totalAmount);
+                orderRepository.save(order);
+
+                System.out.println("Created order #" + order.getId() + " for " + customer.getEmail() +
+                        " with " + itemCount + " items, total: $" + totalAmount);
+            }
+        }
+
+        System.out.println("Order initialization complete!");
     }
 }
