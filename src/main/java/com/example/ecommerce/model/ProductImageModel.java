@@ -27,7 +27,7 @@ public class ProductImageModel {
     // @Column(name = "image_url", nullable = false)
     // private String imageUrl;
 
-    @Column(name = "image_data", columnDefinition = "bytea", nullable = false)
+    @Column(name = "product_images")
     private byte[] imageData;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -13,6 +13,8 @@ import com.example.ecommerce.model.RoleModel;
 public interface RoleRepository extends JpaRepository<RoleModel, UUID> {
     Optional<RoleModel> findByRole(String name);
 
+    boolean existsByRole(String role);
+
     // Add this method to find by enum directly
     default Optional<RoleModel> findByRoleEnum(Role role) {
         return findByRole(role.name());

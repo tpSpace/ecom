@@ -17,7 +17,8 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:3000", // Next.js dev server
-                "http://localhost:8080" // Alternative local development URL
+                "http://localhost:8080", // Alternative local development URL
+                "http://localhost:3001" // Fixed typo in URL
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));

@@ -59,6 +59,10 @@ public class UserModel {
     @Column(name = "address", nullable = true)
     private String address;
 
+    @Column(name = "bio", nullable = true, length = 500)
+    @Size(max = 500, message = "Bio must be less than 500 characters")
+    private String bio;
+
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "role_id", nullable = false)
     private RoleModel role;

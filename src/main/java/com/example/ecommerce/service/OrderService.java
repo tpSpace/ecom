@@ -40,7 +40,7 @@ public class OrderService {
     public OrderModel createOrderFromCart(CartModel cart) {
         OrderModel order = new OrderModel();
         order.setUser(cart.getUser());
-        order.setOrderDate(LocalDate.now());
+        order.setCreatedAt(LocalDate.now());
         order.setOrderStatus(OrderStatus.PENDING.name());
 
         List<OrderItemModel> items = cart.getCartItems().stream()
@@ -97,7 +97,7 @@ public class OrderService {
     public OrderModel updateOrder(UUID id, OrderModel order) {
         OrderModel existingOrder = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
-        existingOrder.setOrderDate(order.getOrderDate());
+        existingOrder.setCreatedAt(order.getCreatedAt());
         existingOrder.setOrderStatus(order.getOrderStatus());
         existingOrder.setUser(order.getUser());
         return orderRepository.save(existingOrder);
