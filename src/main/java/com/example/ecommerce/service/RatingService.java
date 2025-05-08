@@ -55,28 +55,42 @@ public class RatingService {
         ProductModel product = productRepository.findById((request.getProductId()))
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", request.getProductId()));
 
-        // check user
-
         // Validate rating value (assuming 1-5 stars)
         if (request.getScore() < 1 || request.getScore() > 5) {
             throw new IllegalArgumentException("Rating must be between 1 and 5 stars");
         }
 
+        // Find user
+        var user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", request.getUserId()));
+        
+        RatingModel rating;
+        
         // Check if user already rated this product
-        if (ratingRepository.existsByProductIdAndUserId(product.getId(), request.getUserId())) {
-            throw new DuplicateResourceException("Rating", "user-product pair",
-                    "User has already rated this product");
+        boolean ratingExists = ratingRepository.existsByProductIdAndUserId(product.getId(), request.getUserId());
+        
+        if (ratingExists) {
+            // Find the existing rating (by using findAll and filtering)
+            List<RatingModel> userRatings = ratingRepository.findByProductId(product.getId())
+                    .stream()
+                    .filter(r -> r.getUser().getId().equals(request.getUserId()))
+                    .collect(Collectors.toList());
+            
+            // Update the existing rating
+            rating = userRatings.get(0);
+            rating.setScore(request.getScore());
+            rating.setComment(request.getComment());
+            log.info("Updated rating for product {} by user {}", product.getId(), request.getUserId());
+        } else {
+            // Create new rating
+            rating = ratingMapper.toEntity(request);
+            rating.setProduct(product);
+            rating.setUser(user);
+            log.info("Created rating for product {} by user {}", product.getId(), request.getUserId());
         }
-
-        // Create rating
-        RatingModel rating = ratingMapper.toEntity(request);
-        rating.setProduct(product);
-        rating.setUser(userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", request.getUserId())));
 
         // Save rating
         rating = ratingRepository.save(rating);
-        log.info("Created rating for product {} by user {}", product.getId(), request.getUserId());
 
         return ratingMapper.toResponseDto(rating);
     }
