@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -273,6 +275,54 @@ public class ProductService {
         }
 
         return product;
+    }
+
+    public Page<ProductResponse> searchProducts(
+        int page, 
+        int size, 
+        String keyword, 
+        String categoryId,
+        Double minPrice, 
+        Double maxPrice,
+        String sortBy,
+        String direction) {
+    
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.fromString(direction), sortBy);
+        
+        Specification<ProductModel> spec = Specification.where(null);
+        
+        // Add keyword search
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) -> 
+                cb.or(
+                    cb.like(cb.lower(root.get("name")), "%" + keyword.toLowerCase() + "%"),
+                    cb.like(cb.lower(root.get("description")), "%" + keyword.toLowerCase() + "%")
+                )
+            );
+        }
+        
+        // Add category filter
+        if (categoryId != null && !categoryId.trim().isEmpty() && !categoryId.equalsIgnoreCase("All")) {
+            spec = spec.and((root, query, cb) -> 
+                cb.equal(root.get("category").get("id"), UUID.fromString(categoryId))
+            );
+        }
+        
+        // Add price range filter
+        if (minPrice != null) {
+            spec = spec.and((root, query, cb) -> 
+                cb.greaterThanOrEqualTo(root.get("price"), minPrice)
+            );
+        }
+        
+        if (maxPrice != null) {
+            spec = spec.and((root, query, cb) -> 
+                cb.lessThanOrEqualTo(root.get("price"), maxPrice)
+            );
+        }
+        
+        Page<ProductModel> products = productRepository.findAll(spec, pageable);
+        return products.map(mapper::toResponseDto);
     }
 
     /**

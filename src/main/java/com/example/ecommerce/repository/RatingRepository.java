@@ -1,5 +1,6 @@
 package com.example.ecommerce.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -15,6 +16,8 @@ public interface RatingRepository extends JpaRepository<RatingModel, UUID> {
 
     Page<RatingModel> findByProductId(UUID productId, Pageable pageable);
 
+    List<RatingModel> findByProductId(UUID productId);
+
     Page<RatingModel> findByUserId(UUID userId, Pageable pageable);
 
     boolean existsByUserIdAndProductId(UUID userId, UUID productId);
@@ -23,4 +26,6 @@ public interface RatingRepository extends JpaRepository<RatingModel, UUID> {
     Double findAverageRatingByProductId(UUID productId);
 
     int deleteByProductId(UUID productId);
+
+    boolean existsByProductIdAndUserId(UUID id, UUID id2);
 }
