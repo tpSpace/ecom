@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -87,10 +88,10 @@ public class AuthController {
         @PostMapping("/register")
         @Operation(summary = "Register", description = "Register a new user")
         @ApiResponse(responseCode = "200", description = "Registration successful")
-        @ApiResponse(responseCode = "400", description = "Email already in use")
+        @ApiResponse(responseCode = "401", description = "Email already in use")
         public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
                 if (userService.getUserByEmail(registerRequest.getEmail()).isPresent()) {
-                        return ResponseEntity.badRequest().body("Error: Email is already in use");
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Email is already in use");
                 }
 
                 // Create new user account
