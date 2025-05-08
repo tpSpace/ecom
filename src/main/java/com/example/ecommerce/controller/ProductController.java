@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -40,27 +41,36 @@ public class ProductController {
     public ResponseEntity<ProductResponse> createProduct(
             @ModelAttribute ProductRequest productRequest,
             @RequestParam(value = "images", required = false) MultipartFile[] images) {
-
-        log.info("Creating new product: {}", productRequest.getName());
-        ProductResponse createdProduct = productService.createProductWithImagesAndMap(
-                productRequest, images);
-        log.info("Product created successfully with ID: {}", createdProduct.getId());
-
+        log.info("Request to create new product: {}", productRequest.getName());
+        ProductResponse createdProduct = productService.createProductWithImagesAndMap(productRequest, images);
         return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
     }
 
     @GetMapping
-    @Operation(summary = "Get all products", description = "Retrieve all products with pagination")
+    @Operation(summary = "Get all products", description = "Retrieve products with filtering and pagination")
     @ApiResponse(responseCode = "200", description = "List of products")
     public ResponseEntity<Page<ProductResponse>> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        log.info("Getting all products - page: {}, size: {}", page, size);
-        Page<ProductResponse> products = productService.getAllProductsAsDto(page, size);
-        log.info("Retrieved {} products", products.getTotalElements());
-
-        return ResponseEntity.ok(products);
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String categoryId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+        
+        try {
+            log.info("Getting products with filters - page: {}, size: {}, keyword: {}, category: {}, price range: {}-{}", 
+                page, size, keyword, categoryId, minPrice, maxPrice);
+            
+            Page<ProductResponse> products = productService.searchProducts(
+                page, size, keyword, categoryId, minPrice, maxPrice, sortBy, direction);
+            
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            log.error("Error while fetching products: ", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while fetching products", e);
+        }
     }
 
     @GetMapping("/{id}")
@@ -87,31 +97,16 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
-    @GetMapping("/{productId}/images")
+    @GetMapping("/{id}/images")
     @Operation(summary = "Get product images", description = "Retrieve a list of all images for a specific product")
     @ApiResponse(responseCode = "200", description = "List of product images")
     @ApiResponse(responseCode = "404", description = "Product not found")
-    public ResponseEntity<List<ProductImageDto>> getProductImages(@PathVariable UUID productId) {
-        log.info("Getting images for product ID: {}", productId);
-        List<ProductImageDto> images = productService.getProductImagesMetadata(productId);
-        log.info("Retrieved {} images for product ID: {}", images.size(), productId);
+    public ResponseEntity<List<ProductImageDto>> getProductImages(@PathVariable UUID id) {
+        log.info("Getting images for product ID: {}", id);
+        List<ProductImageDto> images = productService.getProductImagesMetadata(id);
+        log.info("Retrieved {} images for product ID: {}", images.size(), id);
 
         return ResponseEntity.ok(images);
-    }
-
-    @GetMapping("/by-category")
-    @Operation(summary = "Get products by category", description = "Retrieve products by category ID")
-    @ApiResponse(responseCode = "200", description = "List of products in category")
-    public ResponseEntity<List<ProductResponse>> getProductsByCategory(
-            @RequestParam UUID categoryId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        log.info("Getting products by category ID: {}, page: {}, size: {}", categoryId, page, size);
-        List<ProductResponse> products = productService.getProductsByCategoryAsDto(categoryId, page, size);
-        log.info("Retrieved {} products for category ID: {}", products.size(), categoryId);
-
-        return ResponseEntity.ok(products);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -37,35 +37,6 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.success("Orders retrieved", dtoPage));
     }
 
-    @GetMapping("/by-id")
-    public ResponseEntity<ApiResponse<OrderResponse>> getOrderById(@RequestParam UUID id) {
-        return orderService.getOrderById(id)
-                .map(o -> ResponseEntity.ok(ApiResponse.success("Order found", orderMapper.toDto(o))))
-                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + id));
-    }
-
-    @GetMapping("/by-user")
-    public ResponseEntity<ApiResponse<Page<OrderResponse>>> getByUser(
-            @RequestParam UUID userId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<OrderResponse> dtoPage = orderService
-                .getOrdersByUser(userId, PageRequest.of(page, size))
-                .map(orderMapper::toDto);
-        return ResponseEntity.ok(ApiResponse.success("User orders retrieved", dtoPage));
-    }
-
-    @GetMapping("/by-status")
-    public ResponseEntity<ApiResponse<Page<OrderResponse>>> getByStatus(
-            @RequestParam String status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<OrderResponse> dtoPage = orderService
-                .getOrdersByStatus(status, PageRequest.of(page, size))
-                .map(orderMapper::toDto);
-        return ResponseEntity.ok(ApiResponse.success("Orders by status", dtoPage));
-    }
-
     @PostMapping
     public ResponseEntity<ApiResponse<OrderResponse>> create(@RequestBody OrderModel order) {
         OrderModel o = orderService.createOrder(order);

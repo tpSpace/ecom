@@ -4,59 +4,80 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.ecommerce.dto.RatingRequest;
 import com.example.ecommerce.dto.RatingResponse;
+import com.example.ecommerce.exception.DuplicateResourceException;
 import com.example.ecommerce.exception.ResourceNotFoundException;
 import com.example.ecommerce.mapper.RatingMapper;
+import com.example.ecommerce.model.ProductModel;
 import com.example.ecommerce.model.RatingModel;
+import com.example.ecommerce.repository.ProductRepository;
 import com.example.ecommerce.repository.RatingRepository;
+import com.example.ecommerce.repository.UserRepository;
 
 @Service
 public class RatingService {
-    private final RatingRepository repo;
-    private final RatingMapper mapper;
+    private static final Logger log = LoggerFactory.getLogger(RatingService.class);
 
-    public RatingService(RatingRepository repo, RatingMapper mapper) {
-        this.repo = repo;
-        this.mapper = mapper;
-    }
+    @Autowired
+    private RatingRepository ratingRepository;
 
-    public List<RatingResponse> getAll() {
-        return repo.findAll()
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RatingMapper ratingMapper;
+
+    public List<RatingResponse> getRatingsByProduct(UUID productId) {
+        // Validate product exists
+        if (!productRepository.existsById(productId)) {
+            throw new ResourceNotFoundException("Product", "id", productId);
+        }
+
+        return ratingRepository.findByProductId(productId)
                 .stream()
-                .map(mapper::toDto)
+                .map(ratingMapper::toResponseDto)
                 .collect(Collectors.toList());
     }
 
-    public RatingResponse getById(UUID id) {
-        RatingModel m = repo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Rating", "id", id));
-        return mapper.toDto(m);
-    }
-
     @Transactional
-    public RatingResponse create(RatingRequest req) {
-        RatingModel m = mapper.toEntity(req);
-        RatingModel saved = repo.save(m);
-        return mapper.toDto(saved);
-    }
+    public RatingResponse createRating(RatingRequest request) {
+        // Validate product exists
+        ProductModel product = productRepository.findById((request.getProductId()))
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", request.getProductId()));
 
-    @Transactional
-    public RatingResponse update(UUID id, RatingRequest req) {
-        RatingModel existing = repo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Rating", "id", id));
-        mapper.updateEntity(existing, req);
-        return mapper.toDto(repo.save(existing));
-    }
+        // check user
 
-    @Transactional
-    public void delete(UUID id) {
-        if (!repo.existsById(id)) {
-            throw new ResourceNotFoundException("Rating", "id", id);
+        // Validate rating value (assuming 1-5 stars)
+        if (request.getScore() < 1 || request.getScore() > 5) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5 stars");
         }
-        repo.deleteById(id);
+
+        // Check if user already rated this product
+        if (ratingRepository.existsByProductIdAndUserId(product.getId(), request.getUserId())) {
+            throw new DuplicateResourceException("Rating", "user-product pair",
+                    "User has already rated this product");
+        }
+
+        // Create rating
+        RatingModel rating = ratingMapper.toEntity(request);
+        rating.setProduct(product);
+        rating.setUser(userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", request.getUserId())));
+
+        // Save rating
+        rating = ratingRepository.save(rating);
+        log.info("Created rating for product {} by user {}", product.getId(), request.getUserId());
+
+        return ratingMapper.toResponseDto(rating);
     }
 }

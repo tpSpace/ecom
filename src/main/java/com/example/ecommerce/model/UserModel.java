@@ -16,6 +16,8 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.security.core.userdetails.UserDetails;
+
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 
@@ -53,7 +55,7 @@ public class UserModel {
     private String lastName;
 
     @NotBlank(message = "Phone number cannot be empty")
-    @Column(name = "phone_number", nullable = false, unique = true)
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
     @Column(name = "address", nullable = true)
@@ -84,5 +86,10 @@ public class UserModel {
     @PreUpdate
     private void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public UserDetails orElseThrow(Object object) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'orElseThrow'");
     }
 }
