@@ -25,9 +25,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.mockito.ArgumentMatchers;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
@@ -36,6 +36,7 @@ class ProductServiceTest {
     @Mock private CategoryRepository categoryRepository;
     @Mock private ProductImageRepository productImageRepository;
     @Mock private ProductMapper mapper;
+    @Mock private VectorSearchService vectorSearchService;
     @InjectMocks private ProductService productService;
 
     private UUID testId;
@@ -110,21 +111,26 @@ class ProductServiceTest {
 
     @Test
     void searchProducts_WithFilters_ShouldReturnPage() {
-        // Mock dependencies
-        Page<ProductModel> mockPage = new PageImpl<>(List.of(product));
+        // Mock dependencies for the productRepository.findAll path
+        Page<ProductModel> mockProductModelPage = new PageImpl<>(List.of(product), PageRequest.of(0, 10), 1);
         when(productRepository.findAll(
-            ArgumentMatchers.<Specification<ProductModel>>any(),
-            any(Pageable.class)
-        ))
-            .thenReturn(mockPage);
+            (Specification<ProductModel>) any(),
+            (Pageable) any()
+        )).thenReturn(mockProductModelPage);
+
+        // Mock the mapper call that will be used on the results of productRepository.findAll
         when(mapper.toResponseDto(any(ProductModel.class)))
             .thenReturn(new ProductResponse());
+
+        // The VectorSearchService is not called by the current ProductService.searchProducts method,
+        // so its mock is not needed for this specific test case.
 
         // Test
         Page<ProductResponse> result = productService.searchProducts(
             0, 10, "test", testId.toString(), 50.0, 100.0, "name", "asc");
 
         // Verify
+        assertNotNull(result); 
         assertEquals(1, result.getTotalElements());
     }
 

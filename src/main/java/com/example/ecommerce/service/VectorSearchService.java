@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,12 +25,18 @@ public class VectorSearchService {
     private final VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
     private final ProductRepository productRepository;
     private final ProductMapper mapper;
+    private final String grpcAddress;
+    private final int grpcPort;
 
     @Autowired
-    public VectorSearchService(ProductRepository productRepository, ProductMapper mapper) {
+    public VectorSearchService(ProductRepository productRepository, ProductMapper mapper,
+                               @Value("${grpc.client.vector-service.address}") String grpcAddress,
+                               @Value("${grpc.client.vector-service.port}") int grpcPort) {
         this.productRepository = productRepository;
         this.mapper = mapper;
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051)
+        this.grpcAddress = grpcAddress;
+        this.grpcPort = grpcPort;
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(this.grpcAddress, this.grpcPort)
                 .usePlaintext()
                 .build();
         this.blockingStub = VectorServiceGrpc.newBlockingStub(channel);
@@ -57,7 +64,7 @@ public class VectorSearchService {
 
     public Page<ProductResponse> searchProducts(String query, int page, int size) {
         SearchProductsRequest request = SearchProductsRequest.newBuilder()
-                .setQuery(query)
+                .setTextQuery(query)
                 .build();
         SearchProductsResponse response = blockingStub.searchProducts(request);
         List<ProductResult> results = response.getResultsList();
