@@ -16,8 +16,6 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.springframework.security.core.userdetails.UserDetails;
-
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 
@@ -86,10 +84,5 @@ public class UserModel {
     @PreUpdate
     private void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-    }
-
-    public UserDetails orElseThrow(Object object) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'orElseThrow'");
     }
 }

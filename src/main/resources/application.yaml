@@ -11,7 +11,13 @@ spring:
       ddl-auto: create
     show-sql: false
 jwt:
-  secret: ${JWT_SECRET}
-  expiration: 3600
+  secret: ${SECRET_JWT}
+  expiration: ${JWT_EXPIRED_TIME:3600}
   token-prefix: Bearer
   header: Authorization
+
+grpc:
+  client:
+    vector-service:
+      address: localhost # Or the actual host of your gRPC server
+      port: 50051      # Or the actual port of your gRPC server

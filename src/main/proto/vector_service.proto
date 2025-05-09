@@ -1,0 +1,123 @@
+syntax = "proto3";
+
+package com.example.ecommerce.vector_service;
+
+option java_package = "com.example.ecommerce.vector_service";
+option java_multiple_files = true;
+
+
+// VectorService defines operations for managing and searching product embeddings.
+service VectorService {
+  // Adds a product embedding to the system.
+  rpc AddProductEmbedding(AddProductEmbeddingRequest) returns (AddProductEmbeddingResponse) {}
+
+  // Updates an existing product embedding.
+  rpc UpdateProductEmbedding(UpdateProductEmbeddingRequest) returns (UpdateProductEmbeddingResponse) {}
+
+  // Deletes a product embedding from the system.
+  rpc DeleteProductEmbedding(DeleteProductEmbeddingRequest) returns (DeleteProductEmbeddingResponse) {}
+
+  // Searches for products based on a query embedding.
+  rpc SearchProducts(SearchProductsRequest) returns (SearchProductsResponse) {}
+  
+  // Fetches a product by ID
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse) {}
+}
+
+// Vector represents an embedding vector
+message Vector {
+  repeated float values = 1; // The actual embedding values
+  int32 dimensions = 2;      // Dimensionality of the embedding
+}
+
+// Product metadata stored as key-value pairs
+message Metadata {
+  map<string, string> fields = 1; // Flexible metadata fields
+}
+
+// Request message for adding a product embedding.
+message AddProductEmbeddingRequest {
+  string product_id = 1;     // Unique identifier for the product (UUID format).
+  string name = 2;           // Product name.
+  string description = 3;    // Product description.
+  double price = 4;          // Product price.
+  Vector embedding = 5;      // Product embedding vector.
+  Metadata metadata = 6;     // Additional product metadata.
+}
+
+// Response message for adding a product embedding.
+message AddProductEmbeddingResponse {
+  string product_id = 1;     // Returns the product ID that was added.
+  bool success = 2;          // Whether the operation succeeded
+  string error = 3;          // Error message if operation failed
+}
+
+// Request message for updating a product embedding.
+message UpdateProductEmbeddingRequest {
+  string product_id = 1;     // Product ID to update (UUID format).
+  string name = 2;           // Updated product name.
+  string description = 3;    // Updated product description.
+  double price = 4;          // Updated product price.
+  Vector embedding = 5;      // Updated product embedding vector.
+  Metadata metadata = 6;     // Updated product metadata.
+}
+
+// Response message for updating a product embedding.
+message UpdateProductEmbeddingResponse {
+  bool success = 1;          // Indicates if the update was successful.
+  string error = 2;          // Error message if operation failed
+}
+
+// Request message for deleting a product embedding.
+message DeleteProductEmbeddingRequest {
+  string product_id = 1;     // Product ID to delete (UUID format).
+}
+
+// Response message for deleting a product embedding.
+message DeleteProductEmbeddingResponse {
+  bool success = 1;          // Indicates if the deletion was successful.
+  string error = 2;          // Error message if operation failed
+}
+
+// Request message for fetching a product
+message GetProductRequest {
+  string product_id = 1;     // Product ID to retrieve
+}
+
+// Response for fetching a product
+message GetProductResponse {
+  ProductResult product = 1; // The product details
+  bool success = 2;          // Whether the operation succeeded
+  string error = 3;          // Error message if operation failed
+}
+
+// Request message for searching products.
+message SearchProductsRequest {
+  oneof query_type {
+    string text_query = 1;   // Text query to convert to embedding
+    Vector vector_query = 2; // Direct vector query
+  }
+  int32 limit = 3;           // Maximum number of results to return (pagination)
+  int32 offset = 4;          // Starting offset for results (pagination)
+  double distance_threshold = 5; // Maximum distance to include in results
+  string filter_expression = 6;  // Optional filter expression for metadata
+}
+
+// Response message for product search results.
+message SearchProductsResponse {
+  repeated ProductResult results = 1; // List of search results.
+  int32 total_count = 2;              // Total number of matching results
+  bool has_more = 3;                  // Whether more results are available
+  string error = 4;                   // Error message if search failed
+}
+
+// Represents a single product search result.
+message ProductResult {
+  string id = 1;             // Product ID (UUID format).
+  string name = 2;           // Product name.
+  string description = 3;    // Product description.
+  double price = 4;          // Product price.
+  double distance = 5;       // Distance metric from query embedding.
+  Vector embedding = 6;      // The product's embedding vector
+  Metadata metadata = 7;     // Additional product metadata
+}

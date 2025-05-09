@@ -2,7 +2,7 @@ package com.example.ecommerce.service;
 
 import com.example.ecommerce.dto.ProductRequest;
 import com.example.ecommerce.dto.ProductResponse;
-import com.example.ecommerce.dto.ProductImageDto;
+import com.example.ecommerce.dto.ProductImageResponse;
 import com.example.ecommerce.mapper.ProductMapper;
 import com.example.ecommerce.model.CategoryModel;
 import com.example.ecommerce.model.ProductModel;
@@ -91,7 +91,7 @@ public class ProductService {
     /**
      * Get product images metadata
      */
-    public List<ProductImageDto> getProductImagesMetadata(UUID productId) {
+    public List<ProductImageResponse> getProductImagesMetadata(UUID productId) {
         // Validate product exists
         if (!getProductById(productId).isPresent()) {
             throw new ResourceNotFoundException("Product", "id", productId);
@@ -100,7 +100,7 @@ public class ProductService {
         return productImageRepository.findByProductId(productId)
                 .stream()
                 .map(image -> {
-                    ProductImageDto dto = new ProductImageDto();
+                    ProductImageResponse dto = new ProductImageResponse();
                     dto.setId(image.getId());
                     dto.setProductId(productId);
                     dto.setImageData(image.getImageData());

@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.ecommerce.dto.RatingRequest;
 import com.example.ecommerce.dto.RatingResponse;
-import com.example.ecommerce.exception.DuplicateResourceException;
 import com.example.ecommerce.exception.ResourceNotFoundException;
 import com.example.ecommerce.mapper.RatingMapper;
 import com.example.ecommerce.model.ProductModel;
@@ -93,5 +92,15 @@ public class RatingService {
         rating = ratingRepository.save(rating);
 
         return ratingMapper.toResponseDto(rating);
+    }
+
+    public double getAverageRating(String productId) {
+        // Validate product exists
+        if (!productRepository.existsById(UUID.fromString(productId))) {
+            throw new ResourceNotFoundException("Product", "id", productId);
+        }
+
+        Double averageRating = ratingRepository.findAverageRatingByProductId(UUID.fromString(productId));
+        return averageRating != null ? averageRating : 0.0; // Return 0 if no ratings exist
     }
 }

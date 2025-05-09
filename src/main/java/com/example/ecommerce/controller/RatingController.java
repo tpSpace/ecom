@@ -44,12 +44,21 @@ public class RatingController {
     @ApiResponse(responseCode = "201", description = "Rating created successfully")
     @ApiResponse(responseCode = "401", description = "Unauthorized - User must be logged in")
     @ApiResponse(responseCode = "400", description = "Invalid rating data")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
     public ResponseEntity<RatingResponse> addRating(
             @Valid @RequestBody RatingRequest ratingRequest) {
 
         log.info("Request to add rating for product ID: {}", ratingRequest.getProductId());
         RatingResponse createdRating = ratingService.createRating(ratingRequest);
         return new ResponseEntity<>(createdRating, HttpStatus.CREATED);
+    }
+
+    // an enpoint to get average rating for a product
+    @GetMapping("/average/{productId}")
+    @Operation(summary = "Get average rating for a product", description = "Retrieve the average rating for a specific product")
+    @ApiResponse(responseCode = "200", description = "Average rating")
+    public ResponseEntity<Double> getAverageRating(@PathVariable String productId) {
+        double averageRating = ratingService.getAverageRating(productId);
+        return ResponseEntity.ok(averageRating);
     }
 }
