@@ -2,7 +2,7 @@ package com.example.ecommerce.controller;
 
 import com.example.ecommerce.dto.ProductRequest;
 import com.example.ecommerce.dto.ProductResponse;
-import com.example.ecommerce.dto.ProductImageDto;
+import com.example.ecommerce.dto.ProductImageResponse;
 import com.example.ecommerce.service.ProductService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -101,9 +101,9 @@ public class ProductController {
     @Operation(summary = "Get product images", description = "Retrieve a list of all images for a specific product")
     @ApiResponse(responseCode = "200", description = "List of product images")
     @ApiResponse(responseCode = "404", description = "Product not found")
-    public ResponseEntity<List<ProductImageDto>> getProductImages(@PathVariable UUID id) {
+    public ResponseEntity<List<ProductImageResponse>> getProductImages(@PathVariable UUID id) {
         log.info("Getting images for product ID: {}", id);
-        List<ProductImageDto> images = productService.getProductImagesMetadata(id);
+        List<ProductImageResponse> images = productService.getProductImagesMetadata(id);
         log.info("Retrieved {} images for product ID: {}", images.size(), id);
 
         return ResponseEntity.ok(images);

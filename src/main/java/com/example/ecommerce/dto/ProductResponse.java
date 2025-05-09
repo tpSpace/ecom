@@ -22,7 +22,7 @@ public class ProductResponse {
 
     // Only include when explicitly set
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<ProductImageDto> images;
+    private List<ProductImageResponse> images;
 
     public boolean hasImages() {
         return images != null && !images.isEmpty();

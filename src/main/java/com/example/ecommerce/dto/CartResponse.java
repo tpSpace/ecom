@@ -10,7 +10,7 @@ import java.util.UUID;
 public class CartResponse {
     private UUID id;
     private String username;
-    private List<CartItemDto> items = new ArrayList<>();
+    private List<CartItemResponse> items = new ArrayList<>();
     private int itemCount;
     private BigDecimal totalPrice;
 }

@@ -2,7 +2,7 @@ package com.example.ecommerce.mapper;
 
 import com.example.ecommerce.dto.ProductRequest;
 import com.example.ecommerce.dto.ProductResponse;
-import com.example.ecommerce.dto.ProductImageDto;
+import com.example.ecommerce.dto.ProductImageResponse;
 import com.example.ecommerce.model.ProductModel;
 import com.example.ecommerce.model.ProductImageModel;
 
@@ -92,11 +92,11 @@ public class ProductMapper {
     /**
      * Convert image entity to DTO
      */
-    private ProductImageDto toImageDto(ProductImageModel image) {
+    private ProductImageResponse toImageDto(ProductImageModel image) {
         if (image == null)
             return null;
 
-        ProductImageDto dto = new ProductImageDto();
+        ProductImageResponse dto = new ProductImageResponse();
         dto.setId(image.getId());
         dto.setProductId(image.getProduct().getId());
         dto.setImageData(image.getImageData());

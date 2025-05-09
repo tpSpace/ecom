@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
-public class CartItemDto {
+public class CartItemResponse {
     private UUID id;
     private UUID productId;
     private String productName;

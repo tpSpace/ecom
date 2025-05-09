@@ -43,7 +43,7 @@ public class CartController {
         return ResponseEntity.ok(cart);
     }
 
-    @PostMapping("/items")
+    @PostMapping("/items/{id}")
     @Operation(summary = "Add item to cart", description = "Adds a product to the user's shopping cart")
     @ApiResponse(responseCode = "200", description = "Item added successfully")
     @ApiResponse(responseCode = "400", description = "Invalid request")
@@ -60,7 +60,7 @@ public class CartController {
         return ResponseEntity.ok(updatedCart);
     }
 
-    @PutMapping("/items/{itemId}")
+    @PutMapping("/items/{id}")
     @Operation(summary = "Update cart item", description = "Updates the quantity of an item in the cart")
     @ApiResponse(responseCode = "200", description = "Item updated successfully")
     @ApiResponse(responseCode = "400", description = "Invalid request")
@@ -78,7 +78,7 @@ public class CartController {
         return ResponseEntity.ok(updatedCart);
     }
 
-    @DeleteMapping("/items/{itemId}")
+    @DeleteMapping("/items/{id}")
     @Operation(summary = "Remove item from cart", description = "Removes an item from the shopping cart")
     @ApiResponse(responseCode = "204", description = "Item removed successfully")
     @ApiResponse(responseCode = "404", description = "Item not found")
