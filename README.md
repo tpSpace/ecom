@@ -160,6 +160,134 @@ Ensure your `.env` file is present and correctly formatted.
 *   `dockerfile`: Docker image definition.
 *   `.env` (You need to create this): For local environment variable configuration.
 
+
+```
+├── .env
+├── .gitattributes
+├── .gitignore
+├── .mvn
+│   └── wrapper
+│       ├── maven-wrapper.properties
+│       └── maven-wrapper.properties:Zone.Identifier
+├── README.md
+├── asset
+│   └── schema.jpeg
+├── dockerfile
+├── mvnw
+├── mvnw.cmd
+├── pom.xml
+└── src
+    ├── main
+    │   ├── java
+    │   │   └── com
+    │   │       └── example
+    │   │           └── ecommerce
+    │   │               ├── EcommerceApplication.java
+    │   │               ├── config
+    │   │               │   ├── CorsConfig.java
+    │   │               │   ├── DataInitializer.java
+    │   │               │   ├── JwtProperties.java
+    │   │               │   ├── SecurityConfig.java
+    │   │               │   └── SwaggerConfig.java
+    │   │               ├── controller
+    │   │               │   ├── AuthController.java
+    │   │               │   ├── CartController.java
+    │   │               │   ├── CategoryController.java
+    │   │               │   ├── OrderController.java
+    │   │               │   ├── ProductController.java
+    │   │               │   ├── RatingController.java
+    │   │               │   └── UserController.java
+    │   │               ├── dto
+    │   │               │   ├── ApiResponse.java
+    │   │               │   ├── AuthRequest.java
+    │   │               │   ├── AuthResponse.java
+    │   │               │   ├── CartItemRequest.java
+    │   │               │   ├── CartItemResponse.java
+    │   │               │   ├── CartResponse.java
+    │   │               │   ├── CategoryRequest.java
+    │   │               │   ├── CategoryResponse.java
+    │   │               │   ├── CustomerResponse.java
+    │   │               │   ├── OrderItemResponse.java
+    │   │               │   ├── OrderResponse.java
+    │   │               │   ├── ProductImageResponse.java
+    │   │               │   ├── ProductRequest.java
+    │   │               │   ├── ProductResponse.java
+    │   │               │   ├── ProfileResponse.java
+    │   │               │   ├── ProfileUpdateRequest.java
+    │   │               │   ├── RatingRequest.java
+    │   │               │   ├── RatingResponse.java
+    │   │               │   └── RegisterRequest.java
+    │   │               ├── enums
+    │   │               │   ├── OrderStatus.java
+    │   │               │   └── Role.java
+    │   │               ├── exception
+    │   │               │   ├── DuplicateResourceException.java
+    │   │               │   ├── ErrorResponse.java
+    │   │               │   ├── GlobalExceptionHandler.java
+    │   │               │   ├── ProductImageProcessingException.java
+    │   │               │   └── ResourceNotFoundException.java
+    │   │               ├── mapper
+    │   │               │   ├── CategoryMapper.java
+    │   │               │   ├── OrderMapper.java
+    │   │               │   ├── ProductMapper.java
+    │   │               │   └── RatingMapper.java
+    │   │               ├── model
+    │   │               │   ├── CartItemModel.java
+    │   │               │   ├── CartModel.java
+    │   │               │   ├── CategoryModel.java
+    │   │               │   ├── OrderItemModel.java
+    │   │               │   ├── OrderModel.java
+    │   │               │   ├── ProductImageModel.java
+    │   │               │   ├── ProductModel.java
+    │   │               │   ├── RatingModel.java
+    │   │               │   ├── RoleModel.java
+    │   │               │   └── UserModel.java
+    │   │               ├── repository
+    │   │               │   ├── CartItemRepository.java
+    │   │               │   ├── CartRepository.java
+    │   │               │   ├── CategoryRepository.java
+    │   │               │   ├── OrderRepository.java
+    │   │               │   ├── ProductImageRepository.java
+    │   │               │   ├── ProductRepository.java
+    │   │               │   ├── RatingRepository.java
+    │   │               │   ├── RoleRepository.java
+    │   │               │   └── UserRepository.java
+    │   │               ├── security
+    │   │               │   ├── AuthEntryPointJwt.java
+    │   │               │   ├── JwtAuthenticationFilter.java
+    │   │               │   ├── JwtUtils.java
+    │   │               │   ├── UserDetailsImpl.java
+    │   │               │   └── UserDetailsServiceImpl.java
+    │   │               └── service
+    │   │                   ├── AuthService.java
+    │   │                   ├── CartService.java
+    │   │                   ├── CategoryService.java
+    │   │                   ├── OrderService.java
+    │   │                   ├── ProductService.java
+    │   │                   ├── RatingService.java
+    │   │                   ├── UserService.java
+    │   │                   └── VectorSearchService.java
+    │   ├── proto
+    │   │   └── vector_service.proto
+    │   └── resources
+    │       ├── application.yaml
+    │       └── schema.sql
+    └── test
+        └── java
+            └── com
+                └── example
+                    └── ecommerce
+                        ├── EcommerceApplicationTests.java
+                        ├── controller
+                        │   ├── CategoryControllerTest.java
+                        │   ├── ProductControllerTest.java
+                        │   ├── RatingControllerTest.java
+                        │   └── UserControllerTest.java
+                        └── service
+                            ├── ProductServiceTest.java
+                            ├── RatingServiceTest.java
+                            └── UserServiceTest.java
+```
 ## Contributing
 
 Please refer to `HELP.md` for contribution guidelines (assuming `HELP.md` contains this information).
