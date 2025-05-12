@@ -30,14 +30,16 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
-    @GetMapping
+    @GetMapping("/{id}")
     @Operation(summary = "Get user's cart", description = "Retrieves the current user's shopping cart")
     @ApiResponse(responseCode = "200", description = "Cart retrieved successfully")
     @ApiResponse(responseCode = "404", description = "Cart not found")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<CartResponse> getUserCart(Authentication authentication) {
-        log.info("Getting cart for user: {}", authentication.getName());
-        CartResponse cart = cartService.getCartByUsername(authentication.getName());
+    public ResponseEntity<CartResponse> getUserCart(
+        @PathVariable UUID id
+    ) {
+        log.info("Getting cart for user: {}", id);
+        CartResponse cart = cartService.getCartById(id);
         log.info("Retrieved cart with {} items", cart.getItems().size());
         
         return ResponseEntity.ok(cart);
@@ -51,10 +53,11 @@ public class CartController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CartResponse> addItemToCart(
             @Valid @RequestBody CartItemRequest request,
-            Authentication authentication) {
+            @PathVariable UUID id
+    ) {
         
         log.info("Adding product {} to cart, quantity: {}", request.getProductId(), request.getQuantity());
-        CartResponse updatedCart = cartService.addItemToCart(authentication.getName(), request);
+        CartResponse updatedCart = cartService.addItemToCart(id, request.getProductId(), request.getQuantity());
         log.info("Product added to cart successfully");
         
         return ResponseEntity.ok(updatedCart);
@@ -69,26 +72,28 @@ public class CartController {
     public ResponseEntity<CartResponse> updateCartItem(
             @PathVariable UUID itemId,
             @RequestParam int quantity,
-            Authentication authentication) {
+            @PathVariable UUID id
+    ) {
         
         log.info("Updating cart item: {}, new quantity: {}", itemId, quantity);
-        CartResponse updatedCart = cartService.updateCartItemQuantity(authentication.getName(), itemId, quantity);
+        CartResponse updatedCart = cartService.updateCartItemQuantity(id, itemId, quantity);
         log.info("Cart item updated successfully");
         
         return ResponseEntity.ok(updatedCart);
     }
 
-    @DeleteMapping("/items/{id}")
+    @DeleteMapping("/items/{userId}/{itemId}")
     @Operation(summary = "Remove item from cart", description = "Removes an item from the shopping cart")
     @ApiResponse(responseCode = "204", description = "Item removed successfully")
     @ApiResponse(responseCode = "404", description = "Item not found")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> removeCartItem(
-            @PathVariable UUID itemId,
-            Authentication authentication) {
+            @PathVariable UUID userId,
+            @PathVariable UUID itemId
+    ) {
         
         log.info("Removing item {} from cart", itemId);
-        cartService.removeItemFromCart(authentication.getName(), itemId);
+        cartService.removeItemFromCart(userId, itemId);
         log.info("Item removed from cart successfully");
         
         return ResponseEntity.noContent().build();
@@ -98,9 +103,11 @@ public class CartController {
     @Operation(summary = "Clear cart", description = "Removes all items from the user's shopping cart")
     @ApiResponse(responseCode = "204", description = "Cart cleared successfully")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> clearCart(Authentication authentication) {
-        log.info("Clearing cart for user: {}", authentication.getName());
-        cartService.clearCart(authentication.getName());
+    public ResponseEntity<Void> clearCart(
+            @PathVariable UUID id
+    ) {
+        log.info("Clearing cart for user: {}", id);
+        cartService.clearCart(id);
         log.info("Cart cleared successfully");
         
         return ResponseEntity.noContent().build();
@@ -112,9 +119,11 @@ public class CartController {
     @ApiResponse(responseCode = "400", description = "Cart is empty")
     @ApiResponse(responseCode = "409", description = "Insufficient product inventory")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UUID> checkout(Authentication authentication) {
-        log.info("Processing checkout for user: {}", authentication.getName());
-        UUID orderId = cartService.checkoutCart(authentication.getName());
+    public ResponseEntity<UUID> checkout(
+            @PathVariable UUID id
+    ) {
+        log.info("Processing checkout for user: {}", id);
+        UUID orderId = cartService.checkoutCart(id);
         log.info("Checkout completed successfully, order created: {}", orderId);
         
         return new ResponseEntity<>(orderId, HttpStatus.CREATED);

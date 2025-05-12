@@ -19,6 +19,7 @@ import com.example.ecommerce.model.OrderItemModel;
 import com.example.ecommerce.model.OrderModel;
 import com.example.ecommerce.repository.CartItemRepository;
 import com.example.ecommerce.repository.OrderRepository;
+import com.example.ecommerce.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -40,10 +41,11 @@ public class OrderService {
     public OrderModel createOrderFromCart(CartModel cart) {
         OrderModel order = new OrderModel();
         order.setUser(cart.getUser());
+               
         order.setCreatedAt(LocalDate.now());
         order.setOrderStatus(OrderStatus.PENDING.name());
 
-        List<OrderItemModel> items = cart.getCartItems().stream()
+        List<OrderItemModel> items = cart.getItems().stream()
                 .map(ci -> {
                     OrderItemModel oi = new OrderItemModel();
                     oi.setOrder(order);
@@ -71,8 +73,8 @@ public class OrderService {
         return orderRepository.findById(id);
     }
 
-    public Page<OrderModel> getOrdersByUser(UUID userId, Pageable pageable) {
-        return orderRepository.findAllByUser_Id(userId, pageable);
+    public Page<OrderModel> getOrdersByUser(String userId, Pageable pageable) {
+        return orderRepository.findAllByUserId(userId, pageable);
     }
 
     public Page<OrderModel> getOrdersByStatus(String status, Pageable pageable) {

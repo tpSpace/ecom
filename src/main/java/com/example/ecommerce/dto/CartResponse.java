@@ -9,8 +9,17 @@ import java.util.UUID;
 @Data
 public class CartResponse {
     private UUID id;
-    private String username;
+    private UUID userId;
     private List<CartItemResponse> items = new ArrayList<>();
     private int itemCount;
     private BigDecimal totalPrice;
+
+    @Data
+    public static class CartItemResponse {
+        private UUID id;
+        private UUID productId;
+        private String productName;
+        private Integer quantity;
+        private Double price;
+    }
 }

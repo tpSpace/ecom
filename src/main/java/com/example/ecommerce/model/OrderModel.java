@@ -14,20 +14,19 @@ public class OrderModel {
 
     @Id
     @GeneratedValue
-    @Column(columnDefinition = "uuid", name = "id", updatable = false, nullable = false, unique = true)
+    @Column(columnDefinition = "uuid", name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
     private UserModel user;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItemModel> orderItems = new ArrayList<>();
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     private LocalDate createdAt;
 
-    @Column(name = "order_status", nullable = false)
+    @Column(name = "order_status")
     private String orderStatus;
 
     @Column(name = "shipping_address", nullable = false, length = 500)
